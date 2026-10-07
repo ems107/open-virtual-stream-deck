@@ -67,7 +67,7 @@ public sealed class TestHost : IDisposable
     public ServiceProvider Services { get; }
     public FakePlatform Platform { get; } = new();
 
-    public TestHost()
+    public TestHost(Action<IServiceCollection>? configure = null)
     {
         var services = new ServiceCollection();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.Warning));
@@ -76,6 +76,7 @@ public sealed class TestHost : IDisposable
         services.AddSingleton<IForegroundWatcher>(Platform);
         services.AddSingleton<IAudioController>(Platform);
         services.AddOvsdCore(_dir.Paths.Root);
+        configure?.Invoke(services);
         Services = services.BuildServiceProvider();
     }
 
