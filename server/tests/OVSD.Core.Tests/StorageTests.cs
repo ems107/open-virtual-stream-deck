@@ -160,3 +160,38 @@ public class MediaStoreTests : IDisposable
     [Fact]
     public void RejectsNonImages() => Assert.Throws<ArgumentException>(() => new MediaStore(_dir.Paths).Save([1], ".exe"));
 }
+
+public class MediaJanitorTests : IDisposable
+{
+    private readonly TestHost _host = new();
+    public void Dispose() => _host.Dispose();
+
+    [Fact]
+    public void DeletesOnlyOldUnreferencedMedia()
+    {
+        var media = _host.Get<MediaStore>();
+        var repo = _host.Get<ProfileRepository>();
+        var paths = _host.Get<DataPaths>();
+        var used = media.Save([1], ".png");
+        var art = media.Save([2], ".png");
+        var orphan = media.Save([3], ".png");
+        var fresh = media.Save([4], ".png");
+
+        var profile = repo.All[0];
+        var first = profile.Pages[0].Controls[0];
+        repo.Save(profile with
+        {
+            Pages = [profile.Pages[0] with { Controls = [first with { Appearance = first.Appearance with { Image = used } }, .. profile.Pages[0].Controls.Skip(1)] }, .. profile.Pages.Skip(1)],
+        });
+        _host.Get<OVSD.Core.Variables.VariableStore>().Set("media.art", art);
+
+        foreach (var url in new[] { used, art, orphan })
+            File.SetLastWriteTimeUtc(Path.Combine(paths.Media, MediaStore.FileNameFromUrl(url)!), DateTime.UtcNow.AddDays(-3));
+
+        Assert.Equal(1, _host.Get<MediaJanitor>().Clean());
+        Assert.NotNull(media.Find(MediaStore.FileNameFromUrl(used)!));
+        Assert.NotNull(media.Find(MediaStore.FileNameFromUrl(art)!));
+        Assert.NotNull(media.Find(MediaStore.FileNameFromUrl(fresh)!));
+        Assert.Null(media.Find(MediaStore.FileNameFromUrl(orphan)!));
+    }
+}

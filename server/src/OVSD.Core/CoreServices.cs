@@ -25,6 +25,8 @@ public static class CoreServices
         services.AddSingleton<VariableStore>();
         services.AddHostedService<VariablePersistence>();
         services.AddHostedService<ClockVariables>();
+        services.AddSingleton<MediaJanitor>();
+        services.AddHostedService(sp => sp.GetRequiredService<MediaJanitor>());
 
         services.TryAddSingleton<UnsupportedPlatform>();
         services.TryAddSingleton<IKeyboard>(sp => sp.GetRequiredService<UnsupportedPlatform>());

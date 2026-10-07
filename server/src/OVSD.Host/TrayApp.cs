@@ -44,7 +44,9 @@ public sealed class TrayApp(int port, string dataDir, Action onExit)
     private static Icon LoadIcon()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "ovsd.ico");
-        return File.Exists(path) ? new Icon(path) : SystemIcons.Application;
+        if (File.Exists(path)) return new Icon(path, SystemInformation.SmallIconSize);
+        // Published single-file build: the icon is embedded in the executable.
+        return Environment.ProcessPath is { } exe ? Icon.ExtractAssociatedIcon(exe) ?? SystemIcons.Application : SystemIcons.Application;
     }
 
     private static void Open(string target) =>
