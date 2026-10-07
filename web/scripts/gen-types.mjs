@@ -23,7 +23,8 @@ try {
       style: { singleQuote: true, semi: false },
     })
     const target = join(outDir, file.replace('.schema.json', '.ts'))
-    writeFileSync(target, ts)
+    // Recursive step lists come out as "Items"; give them their real name.
+    writeFileSync(target, ts.replace(/\bItems\b/g, 'Step'))
     console.log(`Wrote ${target}`)
   }
 } finally {

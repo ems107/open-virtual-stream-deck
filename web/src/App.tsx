@@ -10,6 +10,7 @@ export function App() {
         <Route path="/" element={<DeckPage />} />
         <Route path="/editor/*" element={<EditorPage />} />
         <Route path="/pair" element={<PairPage />} />
+        <Route path="*" element={<DeckPage />} />
       </Routes>
     </BrowserRouter>
   )

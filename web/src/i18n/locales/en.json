@@ -2,18 +2,337 @@
   "status": {
     "connecting": "Connecting…",
     "connected": "Connected to {{server}}",
-    "disconnected": "Disconnected. Retrying…"
+    "disconnected": "Disconnected. Retrying…",
+    "unpaired": "Device not paired"
+  },
+  "common": {
+    "inherited": "inherited",
+    "clear": "Clear",
+    "loading": "Loading…",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "delete": "Delete",
+    "rename": "Rename",
+    "copy": "Copy",
+    "duplicate": "Duplicate",
+    "paste": "Paste",
+    "done": "Done",
+    "name": "Name",
+    "save": "Save"
   },
   "deck": {
+    "empty": "There is no profile for this device.",
+    "editModeHint": "Edit mode: tap a tile to edit it",
+    "menu": "Menu",
+    "profiles": "Profiles",
+    "home": "Home",
+    "back": "Back",
     "fullscreen": "Fullscreen",
-    "empty": "No profile is assigned to this device yet."
+    "keepAwakeOn": "Screen stays on",
+    "keepAwakeOff": "Screen may turn off",
+    "edit": "Edit",
+    "editDone": "Finish editing",
+    "openEditor": "Full editor",
+    "reload": "Reload",
+    "unpair": "Unpair",
+    "unpairConfirm": "Forget this device? You will have to pair it again."
   },
-  "editor": {
-    "title": "Editor",
-    "comingSoon": "The editor arrives in phase 1."
+  "pairScreen": {
+    "title": "Connect to your PC",
+    "instructions": "On the PC, open the OVSD tray icon menu → \"Connect device\" and type the code shown there (or scan the QR code).",
+    "deviceName": "Name of this device",
+    "connect": "Connect"
   },
   "pair": {
     "title": "Connect a device",
-    "instructions": "Scan this code with your phone or tablet (same WiFi network) or open this address:"
+    "instructions": "Scan the code with your phone or tablet (same WiFi network), or open the address and enter the PIN.",
+    "expires": "Code expires in {{seconds}} s",
+    "manual": "Address to open on the device's browser:",
+    "firewall": "If it does not load, allow OVSD in Windows Firewall for private networks.",
+    "manageDevices": "Manage devices"
+  },
+  "nav": {
+    "profiles": "Profiles",
+    "devices": "Devices",
+    "settings": "Settings",
+    "variables": "Variables",
+    "help": "Help",
+    "openDeck": "Open the deck in this browser"
+  },
+  "icons": {
+    "choose": "Choose icon",
+    "search": "Search (play, mic, volume…)",
+    "none": "No icon",
+    "refine": "More results available: refine your search"
+  },
+  "image": {
+    "placeholder": "URL, {{media.art}} or upload an image",
+    "upload": "Upload"
+  },
+  "appearance": {
+    "text": "Text",
+    "textHint": "Use {{variable}} or {{expression}} for dynamic text.",
+    "fontSize": "Text size",
+    "textPosition": "Text position",
+    "top": "Top",
+    "center": "Center",
+    "bottom": "Bottom",
+    "textColor": "Text color",
+    "icon": "Icon",
+    "iconColor": "Icon color",
+    "image": "Image",
+    "imageHint": "PNG, JPG, animated GIF, SVG… or {{media.art}} for the current album art.",
+    "imageFit": "Image fit",
+    "cover": "Fill",
+    "contain": "Fit",
+    "background": "Background color"
+  },
+  "hotkey": {
+    "press": "Press the combination…",
+    "record": "Record"
+  },
+  "macro": {
+    "noParams": "This action has no options.",
+    "templateAllowed": "supports {{templates}}",
+    "empty": "No actions.",
+    "addStep": "Add step",
+    "step": {
+      "action": "Action",
+      "delay": "Wait",
+      "if": "If… then",
+      "set": "Set variable",
+      "repeat": "Repeat"
+    },
+    "delayMs": "Milliseconds",
+    "variable": "Variable",
+    "value": "Value",
+    "expressionHint": "Expression: 'text', numbers, variables, == != < > && || ! and functions.",
+    "condition": "Condition",
+    "then": "Then",
+    "else": "Else",
+    "times": "Times",
+    "indexHint": "Inside the loop, the variable index is 0, 1, 2…",
+    "unknownAction": "Unknown action: {{id}}",
+    "searchActions": "Search actions…"
+  },
+  "inspector": {
+    "kind": "Type",
+    "concurrency": "When triggered again while running",
+    "tabs": {
+      "appearance": "Look",
+      "actions": "Actions",
+      "state": "State",
+      "layout": "Size"
+    }
+  },
+  "kinds": {
+    "button": "Button",
+    "slider": "Slider",
+    "widget": "Widget"
+  },
+  "gestures": {
+    "tap": "Tap",
+    "longPress": "Long press",
+    "doubleTap": "Double tap",
+    "press": "On press",
+    "release": "On release",
+    "change": "On slider move"
+  },
+  "gestureHelp": {
+    "tap": "A normal tap.",
+    "longPress": "Hold (configurable in Settings). With actions here, the normal tap waits until you let go.",
+    "doubleTap": "Two quick taps. With actions here, the normal tap is slightly delayed.",
+    "press": "Right when touched, without waiting. Useful for push-to-talk together with \"On release\".",
+    "release": "Right when the finger is lifted.",
+    "change": "While dragging. The value is in the variable value (e.g. {{value}})."
+  },
+  "concurrency": {
+    "parallel": "Run in parallel",
+    "ignore": "Ignore",
+    "restart": "Restart",
+    "queue": "Queue",
+    "parallelHelp": "Each trigger runs independently.",
+    "ignoreHelp": "While running, new triggers are ignored.",
+    "restartHelp": "Cancels the current run and starts again.",
+    "queueHelp": "Runs one after another."
+  },
+  "state": {
+    "mode": "State",
+    "none": "None",
+    "toggle": "Toggle",
+    "expression": "From expression",
+    "noneHelp": "The tile always looks the same.",
+    "toggleHelp": "Each tap switches between off and on; define the \"on\" look.",
+    "expressionHelp": "The state comes from an expression: true → \"on\", false → \"off\", or the text it returns.",
+    "expressionLabel": "State expression",
+    "expressionHint": "Examples: audio.mic.muted · obs.scene · sys.cpu > 80",
+    "addState": "new state",
+    "appearanceFor": "Look in state \"{{state}}\" (empty fields are inherited)"
+  },
+  "layout": {
+    "rowSpan": "Height (rows)",
+    "colSpan": "Width (columns)",
+    "min": "Min",
+    "max": "Max",
+    "step": "Step",
+    "orientation": "Orientation",
+    "vertical": "Vertical",
+    "horizontal": "Horizontal",
+    "valueExpression": "Value to show",
+    "valueExpressionHint": "Expression giving the current position, e.g. audio.volume. Empty = last moved value.",
+    "color": "Color",
+    "widgetType": "Widget type",
+    "widgetText": "Text",
+    "widgetGraph": "Graph",
+    "widgetGauge": "Gauge",
+    "widgetExpression": "Numeric value",
+    "widgetExpressionHint": "Sampled expression, e.g. sys.cpu or sys.gpu.temp.",
+    "history": "Samples (seconds)"
+  },
+  "editor": {
+    "pages": "Pages",
+    "addPage": "New page",
+    "addFolder": "New folder inside",
+    "newPage": "Page",
+    "newFolder": "Folder",
+    "setHome": "Use as home",
+    "deletePageConfirm": "Delete \"{{name}}\" and its folders?",
+    "pagesHint": "Folders get an automatic \"back\" tile. Drag a tile onto a page to move it there.",
+    "newProfile": "New profile",
+    "newProfileName": "Profile name",
+    "profileSettings": "Profile",
+    "undo": "Undo",
+    "redo": "Redo",
+    "duplicateProfile": "Duplicate profile",
+    "export": "Export (.zip)",
+    "import": "Import (.zip)",
+    "backups": "Previous versions",
+    "backupsHint": "Every save keeps the previous version (up to 50).",
+    "noBackups": "No previous versions yet.",
+    "deletedVersion": "before deletion",
+    "restore": "Restore",
+    "deleteProfile": "Delete profile",
+    "deleteProfileConfirm": "Delete profile \"{{name}}\"? You can recover it from a backup.",
+    "saving": "Saving…",
+    "unsaved": "Unsaved changes",
+    "saved": "Saved",
+    "gridHint": "Click a tile to edit it or an empty cell to create one. Drag to move or swap. Ctrl+C / Ctrl+V / Ctrl+D / Del / Ctrl+Z.",
+    "selectHint": "Select a tile or an empty cell of the grid.",
+    "overlapWarning": "This tile overlaps another one or goes outside the grid.",
+    "emptyCell": "Empty cell row {{row}}, column {{col}}",
+    "addButton": "Add button",
+    "addSlider": "Add slider",
+    "addWidget": "Add widget",
+    "backTile": "The folder's \"back\" tile appears here",
+    "conflict": "This profile was changed somewhere else.",
+    "conflictReload": "Load their version",
+    "conflictOverwrite": "Overwrite with mine",
+    "gridShrinkConfirm": "{{count}} tiles outside the new grid will be deleted. Continue?",
+    "rows": "Rows",
+    "cols": "Columns"
+  },
+  "theme": {
+    "title": "Theme",
+    "background": "Deck background",
+    "tileBackground": "Tile background",
+    "textColor": "Text color",
+    "gap": "Gap (px)",
+    "radius": "Corner radius (px)"
+  },
+  "rules": {
+    "title": "Automatic switching",
+    "help": "Devices with \"Automatic profile\" switch to this profile when the PC's active app matches (process name, * allowed, and/or part of the window title).",
+    "process": "Process (e.g. obs64, chrome, game*)",
+    "title_contains": "Title contains…",
+    "add": "Add rule"
+  },
+  "devices": {
+    "title": "Devices",
+    "pair": "Connect device",
+    "help": "Phones, tablets or browsers paired with this PC. Each can show a different profile.",
+    "none": "No devices yet. Click \"Connect device\" and scan the code with your phone.",
+    "online": "Connected",
+    "lastSeen": "Last seen: {{date}}",
+    "never": "Never connected",
+    "profile": "Profile",
+    "defaultProfile": "Default profile",
+    "auto": "Automatic profile from the active app",
+    "remove": "Unpair",
+    "removeConfirm": "Unpair \"{{name}}\"? It will have to pair again.",
+    "autoHelp": "With automatic profile, the device follows each profile's rules and returns to its own profile when none matches."
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "language": "Language",
+    "defaultProfile": "Default profile",
+    "defaultProfileHint": "For devices without an assigned profile.",
+    "firstProfile": "The first one",
+    "autostart": "Start OVSD with Windows",
+    "deck": "Deck",
+    "longPressMs": "Long press (ms)",
+    "doubleTapMs": "Double tap window (ms)",
+    "haptics": "Vibrate on press",
+    "metrics": "System metrics",
+    "gpuSensors": "GPU sensors (load, temperature)",
+    "cpuSensors": "CPU temperature",
+    "cpuSensorsHint": "CPU temperature requires running OVSD as administrator with the PawnIO driver installed.",
+    "enabled": "Enabled",
+    "obsHint": "In OBS: Tools → WebSocket Server Settings.",
+    "password": "Password",
+    "host": "Host",
+    "port": "Port",
+    "username": "Username",
+    "subscriptions": "Subscriptions",
+    "subscriptionsHint": "One topic per line (+ and # allowed). Each message is stored in the variable mqtt.<topic>.",
+    "discordHelp": "To mute/deafen with real state, create an application at discord.com/developers, add the redirect http://localhost and paste its Client ID and secret here. Discord asks for permission the first time. Without it: use hotkey actions with Discord's own shortcuts.",
+    "discordForget": "Forget authorization",
+    "webhooks": "Incoming webhooks",
+    "webhooksHelp": "Other apps can send data to OVSD with GET or POST to this address; the value ends up in the variable webhook.NAME.",
+    "regenerateKey": "Regenerate key"
+  },
+  "integration": {
+    "disabled": "Disabled",
+    "connecting": "Connecting",
+    "connected": "Connected",
+    "error": "Error"
+  },
+  "variables": {
+    "title": "Variables",
+    "filter": "Filter…",
+    "help": "Live values you can use in texts ({{name}}), conditions and states.",
+    "value": "Value",
+    "copy": "Copy as template"
+  },
+  "help": {
+    "title": "Help",
+    "templatesTitle": "Dynamic texts",
+    "templates": "Any text, icon, color or image can include expressions between {{ }}; they update as soon as variables change.",
+    "expressionsTitle": "Expressions",
+    "expressions": "Conditions, states and assignments use expressions: quoted texts, numbers, true/false, variables (names with unusual characters go in brackets: [mqtt.home/temp]), operators == != < <= > >= + - * / %, && || ! (or and/or/not), a ? b : c, ?? and functions.",
+    "functions": "Functions",
+    "variablesTitle": "Available variables",
+    "mqttVar": "last message of each subscribed topic",
+    "webhookVar": "last data received by the webhook",
+    "userVar": "your own variables; kept across restarts",
+    "toggleVar": "state of each toggle",
+    "valueVar": "slider value (in its actions)",
+    "gesturesTitle": "Gestures",
+    "gestures": "Each tile can have different actions for tap, long press, double tap, press and release. Sliders send their value in the variable value."
+  },
+  "quickEdit": {
+    "editTile": "Edit tile",
+    "newTile": "New tile"
+  },
+  "categories": {
+    "deck": "Deck",
+    "keyboard": "Keyboard",
+    "system": "System",
+    "media": "Media",
+    "audio": "Audio",
+    "obs": "OBS Studio",
+    "http": "HTTP",
+    "mqtt": "MQTT",
+    "discord": "Discord"
   }
 }

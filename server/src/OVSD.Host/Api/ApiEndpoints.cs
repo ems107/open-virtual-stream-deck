@@ -116,6 +116,10 @@ public static class ApiEndpoints
         secured.MapGet("/functions", () => Functions.Help);
         secured.MapGet("/variables", (VariableStore variables) => variables.Snapshot());
 
+        // Live preview for the editor: renders controls with the current variables, exactly like a deck would.
+        secured.MapPost("/preview", (List<Control> controls, VariableStore variables) =>
+            controls.Select(c => TileRenderer.Render(c, variables.Get, null, null)).ToList());
+
         secured.MapGet("/settings", (ConfigRepository config) => config.Settings);
         secured.MapPut("/settings", (AppSettings settings, ConfigRepository config) =>
             config.UpdateSettings(_ => settings).Settings);

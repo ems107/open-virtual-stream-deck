@@ -27,7 +27,7 @@ public static class SchemaExport
         var exporterOptions = new JsonSchemaExporterOptions
         {
             TreatNullObliviousAsNonNullable = true,
-            TransformSchemaNode = (_, node) => RequireDiscriminator(node),
+            TransformSchemaNode = (_, node) => RequireNonNullable(node),
         };
         foreach (var type in RootTypes)
         {
@@ -39,18 +39,32 @@ public static class SchemaExport
         Console.WriteLine($"Exported {RootTypes.Length} schemas to {outputDir}");
     }
 
-    /// <summary>The polymorphic "type" discriminator is always written, so mark it required for TS unions.</summary>
-    private static JsonNode RequireDiscriminator(JsonNode node)
+    /// <summary>
+    /// The server omits only null values, so every property that cannot be null (including the polymorphic
+    /// "type" discriminator and properties with defaults) is always present: mark it required for TypeScript.
+    /// </summary>
+    private static JsonNode RequireNonNullable(JsonNode node)
     {
-        if (node is JsonObject obj
-            && obj["properties"] is JsonObject props
-            && props["type"] is JsonObject typeSchema
-            && typeSchema.ContainsKey("const"))
+        if (node is not JsonObject obj || obj["properties"] is not JsonObject props) return node;
+
+        var required = obj["required"] as JsonArray ?? [];
+        var present = required.Select(r => r?.GetValue<string>()).ToHashSet();
+        foreach (var (name, schema) in props)
         {
-            var required = obj["required"] as JsonArray ?? [];
-            if (!required.Any(r => r?.GetValue<string>() == "type")) required.Insert(0, "type");
-            obj["required"] = required;
+            if (present.Contains(name) || CanBeNull(schema)) continue;
+            if (name == "type") required.Insert(0, name);
+            else required.Add(name);
         }
+        obj["required"] = required;
         return node;
     }
+
+    private static bool CanBeNull(JsonNode? schema) => schema switch
+    {
+        JsonObject o when o["type"] is JsonArray types => types.Any(t => t?.GetValue<string>() == "null"),
+        JsonObject o when o["type"] is JsonValue type => type.GetValue<string>() == "null",
+        JsonObject o when o["enum"] is JsonArray values => values.Any(v => v is null),
+        JsonObject o when o["anyOf"] is JsonArray any => any.Any(CanBeNull),
+        _ => false,
+    };
 }

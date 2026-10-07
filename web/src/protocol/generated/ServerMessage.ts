@@ -6,9 +6,99 @@ export type ServerMessage =
       protocolVersion: number
       serverName: string
       serverVersion: string
+      deviceId: string | null
+      deviceName: string | null
+      isLocal: boolean
+      settings: {
+        longPressMs: number
+        doubleTapMs: number
+        haptics: boolean
+      }
     }
   | {
       type: 'error'
       code: string
       message: string
+    }
+  | {
+      type: 'layout'
+      profileId: string
+      profileName: string
+      revision: number
+      pageId: string
+      pageName: string
+      rows: number
+      cols: number
+      theme: {
+        background: string
+        tileBackground: string
+        textColor: string
+        gap: number
+        radius: number
+      }
+      canGoBack: boolean
+      profiles: {
+        id: string
+        name: string
+      }[]
+    }
+  | {
+      type: 'tiles'
+      tiles: {
+        id: string
+        kind: 'button' | 'slider' | 'widget'
+        row: number
+        col: number
+        rowSpan: number
+        colSpan: number
+        background?: string | null
+        icon?: string | null
+        iconColor?: string | null
+        image?: string | null
+        imageFit?: 'cover' | 'contain' | null
+        text?: string | null
+        textColor?: string | null
+        fontSize?: number | null
+        textPosition?: 'top' | 'center' | 'bottom' | null
+        state?: string | null
+        hasLongPress: boolean
+        hasDoubleTap: boolean
+        slider?: {
+          value: number
+          min: number
+          max: number
+          step: number
+          orientation: 'vertical' | 'horizontal'
+          color: string | null
+        } | null
+        widget?: {
+          type: 'text' | 'graph' | 'gauge'
+          value: number | null
+          min: number
+          max: number
+          series: number[] | null
+          color: string | null
+        } | null
+      }[]
+      removed: string[]
+      reset: boolean
+    }
+  | {
+      type: 'notify'
+      level: 'info' | 'success' | 'warning' | 'error'
+      message: string
+    }
+  | {
+      type: 'configChanged'
+      kind: 'profiles' | 'devices' | 'settings'
+      id: string | null
+      revision: number | null
+    }
+  | {
+      type: 'deckSettings'
+      settings: {
+        longPressMs: number
+        doubleTapMs: number
+        haptics: boolean
+      }
     }

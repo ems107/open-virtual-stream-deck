@@ -2,18 +2,469 @@
   "status": {
     "connecting": "Conectando…",
     "connected": "Conectado a {{server}}",
-    "disconnected": "Desconectado. Reintentando…"
+    "disconnected": "Desconectado. Reintentando…",
+    "unpaired": "Dispositivo no emparejado"
+  },
+  "common": {
+    "inherited": "heredado",
+    "clear": "Borrar",
+    "loading": "Cargando…",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "delete": "Eliminar",
+    "rename": "Renombrar",
+    "copy": "Copiar",
+    "duplicate": "Duplicar",
+    "paste": "Pegar",
+    "done": "Hecho",
+    "name": "Nombre",
+    "save": "Guardar"
   },
   "deck": {
+    "empty": "No hay ningún perfil para este dispositivo.",
+    "editModeHint": "Modo edición: toca una tecla para editarla",
+    "menu": "Menú",
+    "profiles": "Perfiles",
+    "home": "Inicio",
+    "back": "Atrás",
     "fullscreen": "Pantalla completa",
-    "empty": "Todavía no hay ningún perfil asignado a este dispositivo."
+    "keepAwakeOn": "Pantalla siempre encendida",
+    "keepAwakeOff": "La pantalla puede apagarse",
+    "edit": "Editar",
+    "editDone": "Terminar edición",
+    "openEditor": "Editor completo",
+    "reload": "Recargar",
+    "unpair": "Desvincular",
+    "unpairConfirm": "¿Olvidar este dispositivo? Tendrás que emparejarlo otra vez."
   },
-  "editor": {
-    "title": "Editor",
-    "comingSoon": "El editor llegará en la fase 1."
+  "pairScreen": {
+    "title": "Conectar con el PC",
+    "instructions": "En el PC, abre el menú del icono de OVSD en la bandeja → «Conectar dispositivo» y escribe aquí el código que aparece (o escanea el QR).",
+    "deviceName": "Nombre de este dispositivo",
+    "connect": "Conectar"
   },
   "pair": {
     "title": "Conectar un dispositivo",
-    "instructions": "Escanea este código con el móvil o la tablet (misma red WiFi) o abre esta dirección:"
+    "instructions": "Escanea el código con el móvil o la tablet (en la misma red WiFi), o abre la dirección e introduce el PIN.",
+    "expires": "El código caduca en {{seconds}} s",
+    "manual": "Dirección para abrir en el navegador del dispositivo:",
+    "firewall": "Si no carga, permite OVSD en el Firewall de Windows para redes privadas.",
+    "manageDevices": "Gestionar dispositivos"
+  },
+  "nav": {
+    "profiles": "Perfiles",
+    "devices": "Dispositivos",
+    "settings": "Ajustes",
+    "variables": "Variables",
+    "help": "Ayuda",
+    "openDeck": "Abrir el deck en este navegador"
+  },
+  "icons": {
+    "choose": "Elegir icono",
+    "search": "Buscar (en inglés: play, mic, volume…)",
+    "none": "Sin icono",
+    "refine": "Hay más resultados: afina la búsqueda"
+  },
+  "image": {
+    "placeholder": "URL, {{media.art}} o sube una imagen",
+    "upload": "Subir"
+  },
+  "appearance": {
+    "text": "Texto",
+    "textHint": "Usa {{variable}} o {{expresión}} para texto dinámico.",
+    "fontSize": "Tamaño de texto",
+    "textPosition": "Posición del texto",
+    "top": "Arriba",
+    "center": "Centro",
+    "bottom": "Abajo",
+    "textColor": "Color del texto",
+    "icon": "Icono",
+    "iconColor": "Color del icono",
+    "image": "Imagen",
+    "imageHint": "PNG, JPG, GIF animado, SVG… o {{media.art}} para la carátula actual.",
+    "imageFit": "Ajuste de imagen",
+    "cover": "Rellenar",
+    "contain": "Encajar",
+    "background": "Color de fondo"
+  },
+  "hotkey": {
+    "press": "Pulsa la combinación…",
+    "record": "Grabar"
+  },
+  "macro": {
+    "noParams": "Esta acción no tiene opciones.",
+    "templateAllowed": "admite {{plantillas}}",
+    "empty": "Sin acciones.",
+    "addStep": "Añadir paso",
+    "step": {
+      "action": "Acción",
+      "delay": "Esperar",
+      "if": "Si… entonces",
+      "set": "Asignar variable",
+      "repeat": "Repetir"
+    },
+    "delayMs": "Milisegundos",
+    "variable": "Variable",
+    "value": "Valor",
+    "expressionHint": "Expresión: 'texto', números, variables, == != < > && || ! y funciones.",
+    "condition": "Condición",
+    "then": "Entonces",
+    "else": "Si no",
+    "times": "Veces",
+    "indexHint": "Dentro del bucle, la variable index vale 0, 1, 2…",
+    "unknownAction": "Acción desconocida: {{id}}",
+    "searchActions": "Buscar acciones…"
+  },
+  "inspector": {
+    "kind": "Tipo",
+    "concurrency": "Si se vuelve a activar mientras se ejecuta",
+    "tabs": {
+      "appearance": "Aspecto",
+      "actions": "Acciones",
+      "state": "Estado",
+      "layout": "Tamaño"
+    }
+  },
+  "kinds": {
+    "button": "Botón",
+    "slider": "Deslizador",
+    "widget": "Widget"
+  },
+  "gestures": {
+    "tap": "Pulsar",
+    "longPress": "Mantener pulsado",
+    "doubleTap": "Doble toque",
+    "press": "Al presionar",
+    "release": "Al soltar",
+    "change": "Al mover el deslizador"
+  },
+  "gestureHelp": {
+    "tap": "Un toque normal.",
+    "longPress": "Mantener pulsado (configurable en Ajustes). Si hay acciones aquí, el toque normal espera a que sueltes.",
+    "doubleTap": "Dos toques seguidos. Si hay acciones aquí, el toque normal se retrasa un poco.",
+    "press": "Justo al tocar, sin esperar. Útil para pulsar-para-hablar junto con «Al soltar».",
+    "release": "Justo al levantar el dedo.",
+    "change": "Mientras arrastras. El valor está en la variable value (por ejemplo {{value}})."
+  },
+  "concurrency": {
+    "parallel": "Ejecutar en paralelo",
+    "ignore": "Ignorar",
+    "restart": "Reiniciar",
+    "queue": "Poner en cola",
+    "parallelHelp": "Cada activación se ejecuta de forma independiente.",
+    "ignoreHelp": "Mientras se esté ejecutando, las nuevas activaciones se ignoran.",
+    "restartHelp": "Cancela la ejecución en curso y empieza de nuevo.",
+    "queueHelp": "Se ejecutan una detrás de otra."
+  },
+  "state": {
+    "mode": "Estado",
+    "none": "Ninguno",
+    "toggle": "Interruptor",
+    "expression": "Según expresión",
+    "noneHelp": "La tecla siempre se ve igual.",
+    "toggleHelp": "Cada toque alterna entre apagado y encendido; define el aspecto «on».",
+    "expressionHelp": "El estado sale de una expresión: verdadero → «on», falso → «off», o el texto que devuelva.",
+    "expressionLabel": "Expresión del estado",
+    "expressionHint": "Ejemplos: audio.mic.muted · obs.scene · sys.cpu > 80",
+    "addState": "nuevo estado",
+    "appearanceFor": "Aspecto en el estado «{{state}}» (lo que dejes vacío se hereda)"
+  },
+  "layout": {
+    "rowSpan": "Alto (filas)",
+    "colSpan": "Ancho (columnas)",
+    "min": "Mínimo",
+    "max": "Máximo",
+    "step": "Paso",
+    "orientation": "Orientación",
+    "vertical": "Vertical",
+    "horizontal": "Horizontal",
+    "valueExpression": "Valor a mostrar",
+    "valueExpressionHint": "Expresión que da la posición actual, p. ej. audio.volume. Vacío = el último valor movido.",
+    "color": "Color",
+    "widgetType": "Tipo de widget",
+    "widgetText": "Texto",
+    "widgetGraph": "Gráfica",
+    "widgetGauge": "Indicador",
+    "widgetExpression": "Valor numérico",
+    "widgetExpressionHint": "Expresión que se muestrea, p. ej. sys.cpu o sys.gpu.temp.",
+    "history": "Muestras (segundos)"
+  },
+  "editor": {
+    "pages": "Páginas",
+    "addPage": "Nueva página",
+    "addFolder": "Nueva carpeta dentro",
+    "newPage": "Página",
+    "newFolder": "Carpeta",
+    "setHome": "Usar como inicio",
+    "deletePageConfirm": "¿Eliminar «{{name}}» y sus carpetas?",
+    "pagesHint": "Las carpetas tienen una tecla «atrás» automática. Arrastra una tecla sobre una página para moverla.",
+    "newProfile": "Nuevo perfil",
+    "newProfileName": "Nombre del perfil",
+    "profileSettings": "Perfil",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "duplicateProfile": "Duplicar perfil",
+    "export": "Exportar (.zip)",
+    "import": "Importar (.zip)",
+    "backups": "Versiones anteriores",
+    "backupsHint": "Cada guardado conserva la versión anterior (hasta 50).",
+    "noBackups": "Aún no hay versiones anteriores.",
+    "deletedVersion": "antes de eliminar",
+    "restore": "Restaurar",
+    "deleteProfile": "Eliminar perfil",
+    "deleteProfileConfirm": "¿Eliminar el perfil «{{name}}»? Podrás recuperarlo desde una copia de seguridad.",
+    "saving": "Guardando…",
+    "unsaved": "Cambios sin guardar",
+    "saved": "Guardado",
+    "gridHint": "Haz clic en una tecla para editarla o en un hueco para crear una. Arrastra para mover o intercambiar. Ctrl+C / Ctrl+V / Ctrl+D / Supr / Ctrl+Z.",
+    "selectHint": "Selecciona una tecla o un hueco de la rejilla.",
+    "overlapWarning": "Esta tecla se solapa con otra o se sale de la rejilla.",
+    "emptyCell": "Hueco fila {{row}}, columna {{col}}",
+    "addButton": "Añadir botón",
+    "addSlider": "Añadir deslizador",
+    "addWidget": "Añadir widget",
+    "backTile": "Aquí aparece la tecla «atrás» de la carpeta",
+    "conflict": "Este perfil se ha modificado desde otro sitio.",
+    "conflictReload": "Cargar su versión",
+    "conflictOverwrite": "Sobrescribir con la mía",
+    "gridShrinkConfirm": "Se eliminarán {{count}} teclas que quedan fuera de la nueva rejilla. ¿Continuar?",
+    "rows": "Filas",
+    "cols": "Columnas"
+  },
+  "theme": {
+    "title": "Tema",
+    "background": "Fondo del deck",
+    "tileBackground": "Fondo de las teclas",
+    "textColor": "Color del texto",
+    "gap": "Separación (px)",
+    "radius": "Redondeo (px)"
+  },
+  "rules": {
+    "title": "Cambio automático",
+    "help": "Los dispositivos con «Perfil automático» cambian a este perfil cuando la aplicación activa del PC coincide (nombre del proceso, admite *, y/o parte del título de la ventana).",
+    "process": "Proceso (p. ej. obs64, chrome, game*)",
+    "title_contains": "El título contiene…",
+    "add": "Añadir regla"
+  },
+  "devices": {
+    "title": "Dispositivos",
+    "pair": "Conectar dispositivo",
+    "help": "Móviles, tablets o navegadores emparejados con este PC. Cada uno puede mostrar un perfil distinto.",
+    "none": "Aún no hay dispositivos. Pulsa «Conectar dispositivo» y escanea el código con el móvil.",
+    "online": "Conectado",
+    "lastSeen": "Visto por última vez: {{date}}",
+    "never": "Nunca conectado",
+    "profile": "Perfil",
+    "defaultProfile": "Perfil predeterminado",
+    "auto": "Perfil automático según la app activa",
+    "remove": "Desvincular",
+    "removeConfirm": "¿Desvincular «{{name}}»? Tendrá que emparejarse de nuevo.",
+    "autoHelp": "Con el perfil automático, el dispositivo cambia de perfil según las reglas de cada perfil y vuelve a su perfil cuando ninguna coincide."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "general": "General",
+    "language": "Idioma",
+    "defaultProfile": "Perfil predeterminado",
+    "defaultProfileHint": "Para dispositivos sin perfil asignado.",
+    "firstProfile": "El primero",
+    "autostart": "Iniciar OVSD con Windows",
+    "deck": "Deck",
+    "longPressMs": "Pulsación larga (ms)",
+    "doubleTapMs": "Ventana de doble toque (ms)",
+    "haptics": "Vibrar al pulsar",
+    "metrics": "Métricas del sistema",
+    "gpuSensors": "Sensores de GPU (carga, temperatura)",
+    "cpuSensors": "Temperatura de CPU",
+    "cpuSensorsHint": "La temperatura de CPU requiere ejecutar OVSD como administrador y el driver PawnIO instalado.",
+    "enabled": "Activado",
+    "obsHint": "En OBS: Herramientas → Ajustes del servidor WebSocket.",
+    "password": "Contraseña",
+    "host": "Servidor",
+    "port": "Puerto",
+    "username": "Usuario",
+    "subscriptions": "Suscripciones",
+    "subscriptionsHint": "Un topic por línea (admite + y #). Cada mensaje queda en la variable mqtt.<topic>.",
+    "discordHelp": "Para silenciar/ensordecer con estado real, crea una aplicación en discord.com/developers, añade la redirección http://localhost y pega aquí su Client ID y secret. La primera vez Discord pedirá permiso. Alternativa sin esto: usa acciones de atajo de teclado con los atajos de Discord.",
+    "discordForget": "Olvidar autorización",
+    "webhooks": "Webhooks entrantes",
+    "webhooksHelp": "Otras apps pueden enviar datos a OVSD con GET o POST a esta dirección; el valor queda en la variable webhook.NAME.",
+    "regenerateKey": "Regenerar clave"
+  },
+  "integration": {
+    "disabled": "Desactivado",
+    "connecting": "Conectando",
+    "connected": "Conectado",
+    "error": "Error"
+  },
+  "variables": {
+    "title": "Variables",
+    "filter": "Filtrar…",
+    "help": "Valores en vivo que puedes usar en textos ({{nombre}}), condiciones y estados.",
+    "value": "Valor",
+    "copy": "Copiar como plantilla"
+  },
+  "help": {
+    "title": "Ayuda",
+    "templatesTitle": "Textos dinámicos",
+    "templates": "Cualquier texto, icono, color o imagen puede incluir expresiones entre {{ }}; se recalculan en cuanto cambian las variables.",
+    "expressionsTitle": "Expresiones",
+    "expressions": "Las condiciones, estados y asignaciones usan expresiones: textos entre comillas, números, true/false, variables (los nombres con caracteres raros van entre corchetes: [mqtt.casa/temp]), operadores == != < <= > >= + - * / %, && || ! (o and/or/not), a ? b : c, ?? y funciones.",
+    "functions": "Funciones",
+    "variablesTitle": "Variables disponibles",
+    "mqttVar": "último mensaje de cada topic suscrito",
+    "webhookVar": "último dato recibido por el webhook",
+    "userVar": "tus variables; se guardan entre reinicios",
+    "toggleVar": "estado de cada interruptor",
+    "valueVar": "valor del deslizador (en sus acciones)",
+    "gesturesTitle": "Gestos",
+    "gestures": "Cada tecla puede tener acciones distintas al pulsar, mantener, doble toque, presionar y soltar. Los deslizadores envían su valor en la variable value."
+  },
+  "quickEdit": {
+    "editTile": "Editar tecla",
+    "newTile": "Nueva tecla"
+  },
+  "categories": {
+    "deck": "Deck",
+    "keyboard": "Teclado",
+    "system": "Sistema",
+    "media": "Multimedia",
+    "audio": "Audio",
+    "obs": "OBS Studio",
+    "http": "HTTP",
+    "mqtt": "MQTT",
+    "discord": "Discord"
+  },
+  "actions": {
+    "audio": {
+      "mute": "Silenciar",
+      "setDevice": "Cambiar dispositivo de audio",
+      "setVolume": "Ajustar volumen"
+    },
+    "deck": {
+      "back": "Volver atrás",
+      "home": "Ir al inicio",
+      "openPage": "Abrir página / carpeta",
+      "toggle": "Cambiar estado de interruptor",
+      "notify": "Mostrar mensaje",
+      "switchProfile": "Cambiar de perfil"
+    },
+    "keyboard": {
+      "hotkey": "Atajo de teclado",
+      "type": "Escribir texto",
+      "keyDown": "Mantener teclas pulsadas",
+      "keyUp": "Soltar teclas"
+    },
+    "media": {
+      "playPause": "Reproducir / pausar",
+      "next": "Siguiente pista",
+      "previous": "Pista anterior",
+      "stop": "Detener"
+    },
+    "system": {
+      "launch": "Abrir aplicación o archivo",
+      "openUrl": "Abrir URL",
+      "command": "Ejecutar comando"
+    },
+    "obs": {
+      "setScene": "Cambiar escena",
+      "stream": "Emisión",
+      "record": "Grabación",
+      "replay": "Búfer de repetición",
+      "virtualcam": "Cámara virtual",
+      "mute": "Silenciar entrada de audio",
+      "inputVolume": "Volumen de entrada de audio",
+      "sourceVisibility": "Mostrar / ocultar fuente",
+      "studioMode": "Modo estudio",
+      "transition": "Transición de estudio",
+      "request": "Petición personalizada"
+    },
+    "http": {
+      "request": "Petición HTTP"
+    },
+    "mqtt": {
+      "publish": "Publicar en MQTT"
+    },
+    "discord": {
+      "mute": "Silenciar en Discord",
+      "deafen": "Ensordecer en Discord"
+    }
+  },
+  "actionHelp": {
+    "keyboard": {
+      "hotkey": "Pulsa una combinación de teclas. Varias combinaciones separadas por espacios se envían seguidas.",
+      "keyDown": "Úsalo en «Al presionar» junto con «Soltar teclas» en «Al soltar» para pulsar-para-hablar."
+    },
+    "system": {
+      "command": "Ejecuta un comando; su salida puede guardarse en una variable para mostrarla en una tecla."
+    },
+    "audio": {
+      "setVolume": "Valor absoluto 0-100 o relativo con signo: +5 / -5. En un deslizador usa {{value}}."
+    },
+    "deck": {
+      "switchProfile": "Muestra otro perfil en este dispositivo hasta que las reglas automáticas elijan otro.",
+      "toggle": "Cambia el estado on/off de un interruptor (este mismo si no indicas el id)."
+    },
+    "http": {
+      "request": "La respuesta queda en la variable indicada; <variable>.status contiene el código HTTP."
+    },
+    "obs": {
+      "request": "Cualquier petición de obs-websocket v5, p. ej. SetCurrentSceneTransition con {\"transitionName\":\"Fade\"}.",
+      "inputVolume": "0-100 (en un deslizador usa {{value}})."
+    },
+    "discord": {
+      "mute": "Requiere la integración de Discord (Ajustes). Alternativa: un atajo de teclado con el atajo de Discord."
+    }
+  },
+  "params": {
+    "keys": "Teclas",
+    "text": "Texto",
+    "delay": "Retardo entre caracteres (ms)",
+    "path": "Ruta",
+    "args": "Argumentos",
+    "workingDir": "Carpeta de trabajo",
+    "url": "URL",
+    "shell": "Intérprete",
+    "command": "Comando",
+    "resultVariable": "Guardar resultado en la variable",
+    "timeout": "Tiempo máximo (s)",
+    "hidden": "Ocultar ventana",
+    "target": "Destino",
+    "app": "Aplicación",
+    "value": "Valor",
+    "mode": "Modo",
+    "device": "Dispositivo",
+    "page": "Página",
+    "profile": "Perfil",
+    "message": "Mensaje",
+    "level": "Tipo",
+    "control": "Id del control (opcional)",
+    "scene": "Escena",
+    "input": "Entrada de audio",
+    "source": "Fuente",
+    "requestType": "Tipo de petición",
+    "data": "Datos (JSON)",
+    "method": "Método",
+    "headers": "Cabeceras (una por línea, Nombre: valor)",
+    "body": "Cuerpo",
+    "contentType": "Tipo de contenido",
+    "topic": "Topic",
+    "payload": "Contenido",
+    "retain": "Retener (retain)"
+  },
+  "optionLabels": {
+    "toggle": "Alternar",
+    "on": "Activar",
+    "off": "Desactivar",
+    "pause": "Pausar / reanudar",
+    "save": "Guardar repetición",
+    "master": "Altavoces (general)",
+    "mic": "Micrófono",
+    "app": "Aplicación",
+    "info": "Información",
+    "success": "Éxito",
+    "warning": "Aviso",
+    "error": "Error",
+    "none": "Ninguno (ejecutable)"
   }
 }
