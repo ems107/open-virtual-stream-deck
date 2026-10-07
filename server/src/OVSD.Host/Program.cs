@@ -6,6 +6,7 @@ using OVSD.Host;
 using OVSD.Host.Api;
 using OVSD.Host.Realtime;
 using OVSD.Host.Security;
+using OVSD.Platform.Windows;
 
 if (args.Length >= 2 && args[0] == "--export-schema")
 {
@@ -41,6 +42,7 @@ builder.Logging.AddProvider(new FileLoggerProvider(Path.Combine(dataDir, "logs")
 builder.WebHost.ConfigureKestrel(k => k.ListenAnyIP(port));
 
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddWindowsPlatform();
 builder.Services.AddOvsdCore(dataDir);
 builder.Services.AddSingleton<DeviceAuth>();
 builder.Services.AddSingleton<PairingService>();
