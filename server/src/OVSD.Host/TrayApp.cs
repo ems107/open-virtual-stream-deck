@@ -5,34 +5,48 @@ using System.Windows.Forms;
 namespace OVSD.Host;
 
 /// <summary>System tray icon. Runs on its own STA thread with a WinForms message loop.</summary>
-public sealed class TrayApp(int port, Action onExit)
+public sealed class TrayApp(int port, string dataDir, Action onExit)
 {
     public void Run()
     {
         Application.EnableVisualStyles();
         using var icon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = LoadIcon(),
             Text = "Open Virtual Stream Deck",
             Visible = true,
             ContextMenuStrip = new ContextMenuStrip(),
         };
 
         var editorUrl = $"http://localhost:{port}/editor";
-        icon.ContextMenuStrip.Items.Add("Abrir editor", null, (_, _) => OpenUrl(editorUrl));
-        icon.ContextMenuStrip.Items.Add("Conectar dispositivo (QR)", null, (_, _) => OpenUrl($"http://localhost:{port}/pair"));
-        icon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-        icon.ContextMenuStrip.Items.Add("Salir", null, (_, _) =>
+        var menu = icon.ContextMenuStrip.Items;
+        menu.Add("Abrir editor", null, (_, _) => Open(editorUrl));
+        menu.Add("Conectar dispositivo (QR)", null, (_, _) => Open($"http://localhost:{port}/pair"));
+        menu.Add(new ToolStripSeparator());
+
+        var autostart = new ToolStripMenuItem("Iniciar con Windows") { Checked = Autostart.IsEnabled, CheckOnClick = true };
+        autostart.CheckedChanged += (_, _) => Autostart.Set(autostart.Checked);
+        menu.Add(autostart);
+        menu.Add("Abrir carpeta de datos", null, (_, _) => Open(dataDir));
+        menu.Add(new ToolStripSeparator());
+        menu.Add("Salir", null, (_, _) =>
         {
             icon.Visible = false;
             Application.ExitThread();
         });
-        icon.DoubleClick += (_, _) => OpenUrl(editorUrl);
+        icon.ContextMenuStrip.Opening += (_, _) => autostart.Checked = Autostart.IsEnabled;
+        icon.DoubleClick += (_, _) => Open(editorUrl);
 
         Application.Run();
         onExit();
     }
 
-    private static void OpenUrl(string url) =>
-        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+    private static Icon LoadIcon()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "ovsd.ico");
+        return File.Exists(path) ? new Icon(path) : SystemIcons.Application;
+    }
+
+    private static void Open(string target) =>
+        Process.Start(new ProcessStartInfo(target) { UseShellExecute = true });
 }

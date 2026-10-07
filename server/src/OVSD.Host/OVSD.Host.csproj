@@ -5,16 +5,33 @@
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>OVSD.Host</RootNamespace>
+    <AssemblyName>OVSD</AssemblyName>
+    <Version>0.1.0</Version>
+    <ApplicationIcon Condition="Exists('ovsd.ico')">ovsd.ico</ApplicationIcon>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <!-- The client is served from embedded resources, not as ASP.NET static web assets. -->
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="ovsd.ico" Condition="Exists('ovsd.ico')" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <EmbeddedResource Include="wwwroot\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.12" />
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OVSD.Core\OVSD.Core.csproj" />
     <ProjectReference Include="..\OVSD.Platform.Windows\OVSD.Platform.Windows.csproj" />
     <ProjectReference Include="..\OVSD.Integrations\OVSD.Integrations.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="QRCoder" Version="1.8.0" />
   </ItemGroup>
 
 </Project>

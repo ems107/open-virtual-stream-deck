@@ -2,10 +2,22 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using OVSD.Core.Protocol;
+using OVSD.Core.Runtime;
+using OVSD.Core.Storage;
+using OVSD.Host.Security;
 
 namespace OVSD.Host.Realtime;
 
-public sealed class DeckSocketHandler(IOptions<OvsdOptions> options, ILogger<DeckSocketHandler> logger)
+/// <summary>
+/// One WebSocket per client. The first message must be "hello"; after that the runtime's outbox is
+/// pumped to the socket while incoming gestures are forwarded to the runtime.
+/// </summary>
+public sealed class DeckSocketHandler(
+    IOptions<OvsdOptions> options,
+    DeckRuntime runtime,
+    DeviceAuth auth,
+    ConfigRepository config,
+    ILogger<DeckSocketHandler> logger)
 {
     private const int MaxMessageBytes = 64 * 1024;
 
@@ -18,53 +30,126 @@ public sealed class DeckSocketHandler(IOptions<OvsdOptions> options, ILogger<Dec
         }
 
         using var socket = await context.WebSockets.AcceptWebSocketAsync();
-        var remote = context.Connection.RemoteIpAddress;
         var ct = context.RequestAborted;
-        logger.LogInformation("Client connected from {Remote}", remote);
-
+        var isLocal = DeviceAuth.IsLocal(context);
         var buffer = new byte[MaxMessageBytes];
+        DeckSession? session = null;
+
         try
         {
-            while (socket.State == WebSocketState.Open)
-            {
-                var length = await ReceiveAsync(socket, buffer, ct);
-                if (length is null) break;
+            var hello = await ReadHelloAsync(socket, buffer, ct);
+            if (hello is null) return;
 
-                ClientMessage? message;
-                try
-                {
-                    message = JsonSerializer.Deserialize<ClientMessage>(buffer.AsSpan(0, length.Value), ProtocolJson.Options);
-                }
-                catch (JsonException ex)
-                {
-                    await SendAsync(socket, new ErrorMessage("bad_message", ex.Message), ct);
-                    continue;
-                }
-                if (message is not null) await DispatchAsync(socket, message, ct);
+            var device = auth.FindByToken(hello.Token);
+            if (device is null && !isLocal)
+            {
+                await SendAsync(socket, new ErrorMessage("unpaired", "This device is not paired with the server"), ct);
+                await socket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "unpaired", ct);
+                return;
             }
+            if (device is not null)
+                config.UpdateDevice(device.Id, d => d with { LastSeen = DateTimeOffset.UtcNow });
+
+            await SendAsync(socket, new WelcomeMessage(
+                ProtocolInfo.Version,
+                options.Value.ServerName,
+                typeof(DeckSocketHandler).Assembly.GetName().Version?.ToString(3) ?? "0.0.0",
+                device?.Id,
+                device?.Name,
+                isLocal,
+                config.Settings.Deck), ct);
+
+            session = runtime.Attach(device, device?.Name ?? hello.Device.Name, isLocal, hello.Role);
+            var writer = PumpOutboxAsync(socket, session, ct);
+            await ReadLoopAsync(socket, session, buffer, ct);
+            runtime.Detach(session);
+            await writer;
         }
         catch (OperationCanceledException) { }
         catch (WebSocketException ex)
         {
-            logger.LogDebug(ex, "WebSocket closed abruptly for {Remote}", remote);
+            logger.LogDebug(ex, "WebSocket closed abruptly");
         }
-
-        logger.LogInformation("Client disconnected from {Remote}", remote);
+        finally
+        {
+            if (session is not null) runtime.Detach(session);
+        }
     }
 
-    private async Task DispatchAsync(WebSocket socket, ClientMessage message, CancellationToken ct)
+    private async Task<HelloMessage?> ReadHelloAsync(WebSocket socket, byte[] buffer, CancellationToken ct)
     {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(TimeSpan.FromSeconds(10));
+        var length = await ReceiveAsync(socket, buffer, timeout.Token);
+        if (length is null) return null;
+
+        var message = TryParse(buffer, length.Value);
         switch (message)
         {
-            case HelloMessage hello when hello.ProtocolVersion != ProtocolInfo.Version:
-                await SendAsync(socket, new ErrorMessage("protocol_mismatch",
-                    $"Server speaks protocol {ProtocolInfo.Version}, client sent {hello.ProtocolVersion}"), ct);
-                break;
+            case HelloMessage { ProtocolVersion: ProtocolInfo.Version } hello:
+                return hello;
             case HelloMessage hello:
-                logger.LogInformation("Hello from {Device}", hello.Device.Name);
-                await SendAsync(socket, new WelcomeMessage(ProtocolInfo.Version, options.Value.ServerName,
-                    typeof(DeckSocketHandler).Assembly.GetName().Version?.ToString() ?? "0.0.0"), ct);
+                await SendAsync(socket, new ErrorMessage("protocol_mismatch",
+                    $"Server speaks protocol {ProtocolInfo.Version}, client sent {hello.ProtocolVersion}. Reload the page."), ct);
                 break;
+            default:
+                await SendAsync(socket, new ErrorMessage("bad_message", "Expected hello"), ct);
+                break;
+        }
+        await socket.CloseAsync(WebSocketCloseStatus.ProtocolError, null, ct);
+        return null;
+    }
+
+    private async Task ReadLoopAsync(WebSocket socket, DeckSession session, byte[] buffer, CancellationToken ct)
+    {
+        while (socket.State == WebSocketState.Open)
+        {
+            var length = await ReceiveAsync(socket, buffer, ct);
+            if (length is null) return;
+            switch (TryParse(buffer, length.Value))
+            {
+                case InputMessage input:
+                    runtime.HandleInput(session, input);
+                    break;
+                case NavigateMessage navigate:
+                    runtime.Navigate(session, navigate);
+                    break;
+                case SelectProfileMessage select:
+                    runtime.SelectProfile(session, select.ProfileId);
+                    break;
+                case null:
+                    session.Notify("Malformed message", Core.Actions.NotifyLevel.Warning);
+                    break;
+            }
+        }
+    }
+
+    private static async Task PumpOutboxAsync(WebSocket socket, DeckSession session, CancellationToken ct)
+    {
+        try
+        {
+            await foreach (var message in session.Outbox.ReadAllAsync(ct))
+            {
+                if (socket.State != WebSocketState.Open) break;
+                await SendAsync(socket, message, ct);
+            }
+            // Outbox completed by the runtime (e.g. device revoked): close politely.
+            if (socket.State == WebSocketState.Open)
+                await socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, ct);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or WebSocketException) { }
+    }
+
+    private ClientMessage? TryParse(byte[] buffer, int length)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<ClientMessage>(buffer.AsSpan(0, length), ProtocolJson.Options);
+        }
+        catch (JsonException ex)
+        {
+            logger.LogDebug(ex, "Malformed client message");
+            return null;
         }
     }
 
@@ -82,7 +167,8 @@ public sealed class DeckSocketHandler(IOptions<OvsdOptions> options, ILogger<Dec
             var result = await socket.ReceiveAsync(buffer.AsMemory(count), ct);
             if (result.MessageType == WebSocketMessageType.Close)
             {
-                await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, ct);
+                if (socket.State == WebSocketState.CloseReceived)
+                    await socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, null, ct);
                 return null;
             }
             count += result.Count;

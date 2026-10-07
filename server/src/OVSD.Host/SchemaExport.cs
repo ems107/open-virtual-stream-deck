@@ -1,14 +1,25 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Schema;
+using OVSD.Core.Actions;
+using OVSD.Core.Integrations;
+using OVSD.Core.Model;
 using OVSD.Core.Protocol;
+using OVSD.Core.Storage;
+using OVSD.Host.Api;
+using OVSD.Host.Security;
 
 namespace OVSD.Host;
 
-/// <summary>Writes JSON schemas of the protocol types, consumed by web/scripts/gen-types.mjs.</summary>
+/// <summary>Writes JSON schemas of the protocol and API types, consumed by web/scripts/gen-types.mjs.</summary>
 public static class SchemaExport
 {
-    private static readonly Type[] RootTypes = [typeof(ClientMessage), typeof(ServerMessage)];
+    private static readonly Type[] RootTypes =
+    [
+        typeof(ClientMessage), typeof(ServerMessage), typeof(Profile), typeof(AppSettings), typeof(ActionDescriptor),
+        typeof(ProfileListItem), typeof(DeviceView), typeof(PairInfo), typeof(ServerInfo), typeof(PairingResult),
+        typeof(IntegrationStatus), typeof(BackupInfo), typeof(OptionItem),
+    ];
 
     public static void Run(string outputDir)
     {
@@ -24,8 +35,8 @@ public static class SchemaExport
             if (schema is JsonObject obj) obj["title"] = type.Name;
             var path = Path.Combine(outputDir, $"{type.Name}.schema.json");
             File.WriteAllText(path, schema.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
-            Console.WriteLine($"Wrote {path}");
         }
+        Console.WriteLine($"Exported {RootTypes.Length} schemas to {outputDir}");
     }
 
     /// <summary>The polymorphic "type" discriminator is always written, so mark it required for TS unions.</summary>

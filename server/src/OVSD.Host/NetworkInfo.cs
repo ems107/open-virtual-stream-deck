@@ -30,4 +30,7 @@ public static class NetworkInfo
         var ip = GetLanAddresses().FirstOrDefault() ?? IPAddress.Loopback;
         return $"http://{ip}:{port}/";
     }
+
+    public static List<string> GetAllUrls(int port) =>
+        GetLanAddresses().Select(ip => $"http://{ip}:{port}/").ToList();
 }
