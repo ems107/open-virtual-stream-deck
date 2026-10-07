@@ -13,6 +13,7 @@ public static class ProtocolJson
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             NumberHandling = JsonNumberHandling.Strict,
+            AllowOutOfOrderMetadataProperties = true,
             RespectNullableAnnotations = true,
             RespectRequiredConstructorParameters = true,
         };
