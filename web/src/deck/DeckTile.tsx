@@ -81,6 +81,7 @@ export function DeckTile({ tile, theme, editMode, onEdit }: DeckTileProps) {
 
   return (
     <div
+      data-tile={tile.id}
       className={`deck-cell${editMode ? ' editing' : ''}`}
       style={{
         gridRow: `${tile.row + 1} / span ${tile.rowSpan}`,

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.FileProviders;
 using OVSD.Core;
+using OVSD.Core.Platform;
 using OVSD.Core.Storage;
 using OVSD.Host;
 using OVSD.Host.Api;
@@ -43,7 +44,20 @@ builder.Logging.AddProvider(new FileLoggerProvider(Path.Combine(dataDir, "logs")
 builder.WebHost.ConfigureKestrel(k => k.ListenAnyIP(port));
 
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddWindowsPlatform();
+if (builder.Configuration.GetValue("Ovsd:DryRun", false))
+{
+    // Tests and demos: record actions instead of touching the machine.
+    builder.Services.AddSingleton<DryRunPlatform>();
+    builder.Services.AddSingleton<IKeyboard>(sp => sp.GetRequiredService<DryRunPlatform>());
+    builder.Services.AddSingleton<IMediaController>(sp => sp.GetRequiredService<DryRunPlatform>());
+    builder.Services.AddSingleton<IAudioController>(sp => sp.GetRequiredService<DryRunPlatform>());
+    builder.Services.AddSingleton<IForegroundWatcher>(sp => sp.GetRequiredService<DryRunPlatform>());
+    builder.Services.AddSingleton<IProcessLauncher>(sp => sp.GetRequiredService<DryRunPlatform>());
+}
+else
+{
+    builder.Services.AddWindowsPlatform();
+}
 builder.Services.AddOvsdCore(dataDir);
 builder.Services.AddIntegrations();
 builder.Services.AddSingleton<DeviceAuth>();

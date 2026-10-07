@@ -210,13 +210,13 @@ export function controlToTile(control: Control): TileState {
   }
 }
 
-/** Short human summary of a step for collapsed macro rows. */
-export function stepSummary(step: Step, actionName: (id: string) => string): string {
+/** Short human summary of a step for collapsed macro rows (shown next to its title). */
+export function stepSummary(step: Step): string {
   switch (step.type) {
-    case 'action': {
-      const first = Object.values(step.params ?? {}).find((v) => v)
-      return first ? `${actionName(step.action)}: ${first}` : actionName(step.action)
-    }
+    case 'action':
+      return Object.values(step.params ?? {})
+        .filter((v) => v)
+        .join(' · ')
     case 'delay':
       return `${step.ms} ms`
     case 'if':

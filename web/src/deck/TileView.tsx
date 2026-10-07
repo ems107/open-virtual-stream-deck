@@ -38,7 +38,8 @@ export function TileView({ tile, theme, pressed, dragValue, selected }: TileView
       {tile.kind === 'widget' && tile.widget?.type === 'graph' && <Graph widget={tile.widget} />}
       {tile.kind === 'widget' && tile.widget?.type === 'gauge' && <Gauge widget={tile.widget} />}
       <div className="tile-content">
-        {hasIcon && !(tile.image && textPosition === 'center') && (
+        {/* The icon is the fallback when there is no image (e.g. no album art right now). */}
+        {hasIcon && !tile.image && (
           <Icon name={tile.icon!} className="tile-icon" style={{ color: tile.iconColor ?? undefined }} />
         )}
         {tile.text && (

@@ -33,7 +33,7 @@ public static class SampleProfile
                     Kind = ControlKind.Widget,
                     Position = new Cell { Row = 0, Col = 0 },
                     Widget = new WidgetConfig { Type = WidgetType.Text },
-                    Appearance = new Appearance { Text = "{{time.hhmm}}\n{{time.date}}", FontSize = 22 },
+                    Appearance = new Appearance { Text = "{{time.hhmm}}\n{{time.date}}", FontSize = 16 },
                 },
                 Button(0, 1, "mdi:skip-previous", "", Act("media.previous")),
                 new Control
@@ -125,7 +125,7 @@ public static class SampleProfile
             ParentId = homeId,
             Controls =
             [
-                Button(0, 1, "mdi:notepad", "Notepad", Act("system.launch", ("path", "notepad.exe"))),
+                Button(0, 1, "mdi:note-edit-outline", "Notepad", Act("system.launch", ("path", "notepad.exe"))),
                 Button(0, 2, "mdi:calculator", "Calc", Act("system.launch", ("path", "calc.exe"))),
                 Button(0, 3, "mdi:folder", "Explorer", Act("system.launch", ("path", "explorer.exe"))),
             ],

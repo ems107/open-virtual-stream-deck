@@ -89,7 +89,7 @@ function StepCard(props: {
       <div className="step-header" onClick={props.onToggle}>
         <Icon name={icon} />
         <span className="step-title">{step.type === 'action' ? actionName(step.action) : t(`macro.step.${step.type}`)}</span>
-        {!props.expanded && <span className="step-summary">{stepSummary(step, actionName)}</span>}
+        {!props.expanded && <span className="step-summary">{stepSummary(step)}</span>}
         <span className="step-tools" onClick={(e) => e.stopPropagation()}>
           <button type="button" className="icon-button" onClick={() => props.onMove(-1)} title={t('common.moveUp')}>
             <Icon name="mdi:chevron-up" />

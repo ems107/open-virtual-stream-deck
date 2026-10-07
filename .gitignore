@@ -14,3 +14,7 @@ server/src/OVSD.Host/wwwroot/
 Thumbs.db
 .vscode/
 .idea/
+
+# Playwright
+web/test-results/
+web/playwright-report/
