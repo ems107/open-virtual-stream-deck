@@ -1,0 +1,19 @@
+{
+  "status": {
+    "connecting": "Conectando…",
+    "connected": "Conectado a {{server}}",
+    "disconnected": "Desconectado. Reintentando…"
+  },
+  "deck": {
+    "fullscreen": "Pantalla completa",
+    "empty": "Todavía no hay ningún perfil asignado a este dispositivo."
+  },
+  "editor": {
+    "title": "Editor",
+    "comingSoon": "El editor llegará en la fase 1."
+  },
+  "pair": {
+    "title": "Conectar un dispositivo",
+    "instructions": "Escanea este código con el móvil o la tablet (misma red WiFi) o abre esta dirección:"
+  }
+}

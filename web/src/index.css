@@ -1,0 +1,90 @@
+:root {
+  --bg: #111318;
+  --surface: #1b1e25;
+  --text: #e8eaf0;
+  --muted: #8b90a0;
+  --accent: #5b8cff;
+  --ok: #3ecf8e;
+  --warn: #f5b041;
+  --bad: #ef5b5b;
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid #2c303a;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem 1rem;
+}
+
+.deck-page {
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.status-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--bad);
+}
+
+.status-connecting .status-dot {
+  background: var(--warn);
+}
+
+.status-connected .status-dot {
+  background: var(--ok);
+}
+
+.qr {
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.pair-url {
+  font-size: 1.2rem;
+}

@@ -1,0 +1,19 @@
+{
+  "status": {
+    "connecting": "Connecting…",
+    "connected": "Connected to {{server}}",
+    "disconnected": "Disconnected. Retrying…"
+  },
+  "deck": {
+    "fullscreen": "Fullscreen",
+    "empty": "No profile is assigned to this device yet."
+  },
+  "editor": {
+    "title": "Editor",
+    "comingSoon": "The editor arrives in phase 1."
+  },
+  "pair": {
+    "title": "Connect a device",
+    "instructions": "Scan this code with your phone or tablet (same WiFi network) or open this address:"
+  }
+}
