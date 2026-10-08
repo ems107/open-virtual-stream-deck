@@ -37,6 +37,12 @@ jobs:
       - name: Server tests
         run: dotnet test server/OVSD.sln
 
+      - name: End-to-end tests (Edge, server in dry-run mode)
+        working-directory: web
+        run: |
+          npm run build
+          npm run e2e
+
       - name: Build OVSD.exe and installer
         shell: pwsh
         run: ./scripts/build-installer.ps1

@@ -50,7 +50,7 @@
     "instructions": "Scan the code with your phone or tablet (same WiFi network), or open the address and enter the PIN.",
     "expires": "Code expires in {{seconds}} s",
     "manual": "Address to open on the device's browser:",
-    "firewall": "If it does not load, allow OVSD in Windows Firewall for private networks.",
+    "firewall": "If it does not load, check that the phone is on the same WiFi and see Settings → This PC in the editor.",
     "manageDevices": "Manage devices"
   },
   "nav": {
@@ -277,8 +277,7 @@
     "haptics": "Vibrate on press",
     "metrics": "System metrics",
     "gpuSensors": "GPU sensors (load, temperature)",
-    "cpuSensors": "CPU temperature",
-    "cpuSensorsHint": "CPU temperature requires running OVSD as administrator with the PawnIO driver installed.",
+    "cpuSensorsHint": "CPU temperature is turned on above, in \"This PC\".",
     "enabled": "Enabled",
     "obsHint": "In OBS: Tools → WebSocket Server Settings.",
     "password": "Password",
@@ -336,5 +335,30 @@
     "http": "HTTP",
     "mqtt": "MQTT",
     "discord": "Discord"
+  },
+  "system": {
+    "title": "This PC",
+    "lan": "Connections from your network",
+    "lanReady": "Your phones and tablets can connect (\"{{name}}\" network, private).",
+    "lanBlocked": "Your phones and tablets can't connect yet: OVSD isn't allowed through the Windows firewall. It's a single step and Windows will ask you to confirm.",
+    "lanBlockedShort": "Blocked: the Windows firewall doesn't allow OVSD yet. It only works on this PC.",
+    "lanLocalMode": "Turned off in the configuration (Ovsd:Network = local).",
+    "publicNetwork": "Windows has the \"{{name}}\" network marked as public, so it blocks connections. Mark it as private if it is your home network.",
+    "allowLan": "Allow connections",
+    "makePrivate": "Mark network as private",
+    "waitingUac": "Confirm in the Windows prompt…",
+    "restarting": "Restarting OVSD…",
+    "cancelled": "Cancelled in the Windows prompt.",
+    "failed": "It could not be completed.",
+    "cpuTemp": "CPU temperature",
+    "sensorsOff": "Off.",
+    "sensorsOk": "{{temp}} °C · {{cpu}}",
+    "sensorsStarting": "Starting the sensor service…",
+    "sensorsNoDriver": "The PawnIO driver is missing. Turn this off and on again to install it.",
+    "sensorsStopped": "The sensor service is stopped. Turn this off and on again to repair it.",
+    "sensorsInstalling": "Installing the PawnIO driver and the sensor service…",
+    "enable": "Turn on",
+    "disable": "Turn off",
+    "sensorsHelp": "Reading the CPU temperature needs a system driver (PawnIO) that only an administrator process can use. So OVSD installs a small separate service that only reads the sensors and passes them to OVSD, which keeps running as your normal user. Variables: sys.cpu.temp, sys.cpu.power, sys.cpu.clock."
   }
 }

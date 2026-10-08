@@ -126,7 +126,9 @@ public class MqttTests
     {
         var port = FreePort();
         using var broker = new MqttServerFactory().CreateMqttServer(
-            new MqttServerOptionsBuilder().WithDefaultEndpoint().WithDefaultEndpointPort(port).Build());
+            // Loopback only: listening on every interface makes Windows ask for a firewall exception.
+            new MqttServerOptionsBuilder().WithDefaultEndpoint().WithDefaultEndpointBoundIPAddress(System.Net.IPAddress.Loopback)
+                .WithDefaultEndpointBoundIPV6Address(System.Net.IPAddress.None).WithDefaultEndpointPort(port).Build());
         var published = new List<(string Topic, string Payload)>();
         broker.InterceptingPublishAsync += e =>
         {

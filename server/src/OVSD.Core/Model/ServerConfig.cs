@@ -43,8 +43,6 @@ public sealed record MetricsSettings
 {
     /// <summary>GPU load/temperature through LibreHardwareMonitor (no admin needed for most GPUs).</summary>
     public bool GpuSensors { get; init; } = true;
-    /// <summary>CPU temperature needs a kernel driver and running as administrator.</summary>
-    public bool CpuSensors { get; init; }
 }
 
 public sealed record ObsSettings

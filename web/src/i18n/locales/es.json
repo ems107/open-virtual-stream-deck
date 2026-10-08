@@ -50,7 +50,7 @@
     "instructions": "Escanea el código con el móvil o la tablet (en la misma red WiFi), o abre la dirección e introduce el PIN.",
     "expires": "El código caduca en {{seconds}} s",
     "manual": "Dirección para abrir en el navegador del dispositivo:",
-    "firewall": "Si no carga, permite OVSD en el Firewall de Windows para redes privadas.",
+    "firewall": "Si no carga, comprueba que el móvil está en la misma WiFi y revisa Ajustes → Este PC en el editor.",
     "manageDevices": "Gestionar dispositivos"
   },
   "nav": {
@@ -277,8 +277,7 @@
     "haptics": "Vibrar al pulsar",
     "metrics": "Métricas del sistema",
     "gpuSensors": "Sensores de GPU (carga, temperatura)",
-    "cpuSensors": "Temperatura de CPU",
-    "cpuSensorsHint": "La temperatura de CPU requiere ejecutar OVSD como administrador y el driver PawnIO instalado.",
+    "cpuSensorsHint": "La temperatura de la CPU se activa más arriba, en «Este PC».",
     "enabled": "Activado",
     "obsHint": "En OBS: Herramientas → Ajustes del servidor WebSocket.",
     "password": "Contraseña",
@@ -468,5 +467,30 @@
     "warning": "Aviso",
     "error": "Error",
     "none": "Ninguno (ejecutable)"
+  },
+  "system": {
+    "title": "Este PC",
+    "lan": "Conexiones desde tu red",
+    "lanReady": "Tus móviles y tablets pueden conectarse (red «{{name}}», privada).",
+    "lanBlocked": "Tus móviles y tablets todavía no pueden conectarse: falta permitir OVSD en el firewall de Windows. Es un solo paso y Windows te pedirá confirmación.",
+    "lanBlockedShort": "Bloqueadas: el firewall de Windows todavía no permite OVSD. Solo funciona en este PC.",
+    "lanLocalMode": "Desactivadas en la configuración (Ovsd:Network = local).",
+    "publicNetwork": "Windows tiene la red «{{name}}» marcada como pública, así que bloquea las conexiones. Márcala como privada si es tu red de casa.",
+    "allowLan": "Permitir conexiones",
+    "makePrivate": "Marcar como red privada",
+    "waitingUac": "Confirma en el aviso de Windows…",
+    "restarting": "Reiniciando OVSD…",
+    "cancelled": "Cancelado en el aviso de Windows.",
+    "failed": "No se ha podido completar.",
+    "cpuTemp": "Temperatura de CPU",
+    "sensorsOff": "Desactivada.",
+    "sensorsOk": "{{temp}} °C · {{cpu}}",
+    "sensorsStarting": "Iniciando el servicio de sensores…",
+    "sensorsNoDriver": "Falta el driver PawnIO. Desactívala y vuelve a activarla para instalarlo.",
+    "sensorsStopped": "El servicio de sensores está detenido. Desactívala y vuelve a activarla para repararlo.",
+    "sensorsInstalling": "Instalando el driver PawnIO y el servicio de sensores…",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "sensorsHelp": "Leer la temperatura de la CPU requiere un driver del sistema (PawnIO) que solo un proceso con permisos de administrador puede usar. Por eso OVSD instala un pequeño servicio aparte que únicamente lee los sensores y se los pasa a OVSD, que sigue funcionando con tu usuario normal. Variables: sys.cpu.temp, sys.cpu.power, sys.cpu.clock."
   }
 }

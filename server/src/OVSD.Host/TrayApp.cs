@@ -6,7 +6,7 @@ using System.Windows.Forms;
 namespace OVSD.Host;
 
 /// <summary>System tray icon. Runs on its own STA thread with a WinForms message loop.</summary>
-public sealed class TrayApp(int port, string dataDir, bool firstRun, Action onExit)
+public sealed class TrayApp(int port, string dataDir, bool firstRun, bool lanReady, CancellationToken stopping, Action onExit)
 {
     private static readonly bool Spanish = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es";
 
@@ -52,11 +52,24 @@ public sealed class TrayApp(int port, string dataDir, bool firstRun, Action onEx
             icon.ShowBalloonTip(
                 10_000,
                 L("OVSD está en marcha", "OVSD is running"),
-                L("Lo encontrarás en este icono de la bandeja. Doble clic: editor. Clic derecho: conectar el móvil y más opciones.",
-                  "You'll find it in this tray icon. Double-click: editor. Right-click: connect your phone and more."),
+                lanReady
+                    ? L("Lo encontrarás en este icono de la bandeja. Doble clic: editor. Clic derecho: conectar el móvil y más opciones.",
+                        "You'll find it in this tray icon. Double-click: editor. Right-click: connect your phone and more.")
+                    : L("Lo encontrarás en este icono de la bandeja. Para conectar el móvil, permite el acceso desde tu red en el editor (Ajustes → Este PC).",
+                        "You'll find it in this tray icon. To connect your phone, allow access from your network in the editor (Settings → This PC)."),
                 ToolTipIcon.Info);
             Open(editorUrl);
         }
+
+        // The server can stop on its own (restart after enabling LAN access): take the icon down with it
+        // instead of leaving a dead icon in the tray.
+        using var marshal = new Control();
+        marshal.CreateControl();
+        using var stopRegistration = stopping.Register(() => marshal.BeginInvoke(() =>
+        {
+            icon.Visible = false;
+            Application.ExitThread();
+        }));
 
         Application.Run();
         onExit();

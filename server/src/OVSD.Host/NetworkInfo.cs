@@ -25,9 +25,11 @@ public static class NetworkInfo
         return bytes[0] == 169 && bytes[1] == 254;
     }
 
+    public static IPAddress? GetPrimaryAddress() => GetLanAddresses().FirstOrDefault();
+
     public static string GetPrimaryUrl(int port)
     {
-        var ip = GetLanAddresses().FirstOrDefault() ?? IPAddress.Loopback;
+        var ip = GetPrimaryAddress() ?? IPAddress.Loopback;
         return $"http://{ip}:{port}/";
     }
 

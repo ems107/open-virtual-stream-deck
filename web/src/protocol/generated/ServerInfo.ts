@@ -7,4 +7,5 @@ export interface ServerInfo {
   urls: string[]
   isLocal: boolean
   authorized: boolean
+  lanReady: boolean
 }

@@ -7,6 +7,7 @@ using OVSD.Host;
 using OVSD.Host.Api;
 using OVSD.Host.Realtime;
 using OVSD.Host.Security;
+using OVSD.Host.SystemSetup;
 using OVSD.Integrations;
 using OVSD.Platform.Windows;
 
@@ -16,9 +17,24 @@ if (args.Length >= 2 && args[0] == "--export-schema")
     return;
 }
 
+// Short-lived elevated helper (firewall, sensor service) started by the installer or the settings page.
+if (args.Contains("--setup"))
+{
+    Environment.ExitCode = await ElevatedSetup.RunAsync(args);
+    return;
+}
+
+// The CPU sensor Windows service (a copy of this executable, see SensorService).
+if (args.Contains("--sensor-service"))
+{
+    await SensorServiceHost.RunAsync(args);
+    return;
+}
+
 var noTray = args.Contains("--no-tray");
+var restarted = args.Contains("--restart");
 // Value-less flags must not reach the configuration parser, which would take the next argument as their value.
-var configArgs = args.Where(a => a != "--no-tray").ToArray();
+var configArgs = args.Where(a => a is not ("--no-tray" or "--restart")).ToArray();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -32,6 +48,18 @@ var dataDir = builder.Configuration["Ovsd:DataDir"] is { Length: > 0 } custom ? 
 
 // One server per user session: a second launch just opens the editor of the running one.
 using var instance = new Mutex(initiallyOwned: true, $@"Local\OVSD-{port}", out var isFirstInstance);
+if (!isFirstInstance && restarted)
+{
+    // Restarting ourselves (e.g. after allowing LAN access): wait for the previous process to exit.
+    try
+    {
+        isFirstInstance = instance.WaitOne(TimeSpan.FromSeconds(20));
+    }
+    catch (AbandonedMutexException)
+    {
+        isFirstInstance = true;
+    }
+}
 if (!isFirstInstance)
 {
     if (noTray) Console.Error.WriteLine($"OVSD is already running on port {port}.");
@@ -43,7 +71,12 @@ if (!isFirstInstance)
 // The profiles folder is created (with a sample profile) on the very first start.
 var firstRun = !Directory.Exists(Path.Combine(dataDir, "profiles"));
 builder.Logging.AddProvider(new FileLoggerProvider(Path.Combine(dataDir, "logs")));
-builder.WebHost.ConfigureKestrel(k => k.ListenAnyIP(port));
+var lan = new LanAccess(builder.Configuration["Ovsd:Network"] ?? "auto", Environment.ProcessPath!);
+builder.WebHost.ConfigureKestrel(k =>
+{
+    if (lan.Listening) k.ListenAnyIP(port);
+    else k.ListenLocalhost(port);
+});
 
 builder.Services.AddSingleton(TimeProvider.System);
 if (builder.Configuration.GetValue("Ovsd:DryRun", false))
@@ -91,7 +124,18 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.Map("/ws", (HttpContext ctx, DeckSocketHandler handler) => handler.HandleAsync(ctx));
-app.MapOvsdApi(port);
+app.MapOvsdApi(port, lan.Listening);
+app.MapSystemApi(port, lan, restart: () =>
+{
+    // Start a new instance (it waits for this one to exit) and shut down.
+    var info = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = false };
+    foreach (var arg in args.Where(a => a != "--restart").Append("--restart")) info.ArgumentList.Add(arg);
+    _ = Task.Delay(500).ContinueWith(_ =>
+    {
+        Process.Start(info);
+        app.Services.GetRequiredService<IHostApplicationLifetime>().StopApplication();
+    });
+});
 app.MapFallbackToFile("index.html", new StaticFileOptions
 {
     OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache",
@@ -117,7 +161,7 @@ catch (Exception e)
 app.Logger.LogInformation("OVSD {Version} listening on {Url} (data in {DataDir})", AppInfo.Version, NetworkInfo.GetPrimaryUrl(port), dataDir);
 
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-var trayThread = new Thread(() => new TrayApp(port, dataDir, firstRun, lifetime.StopApplication).Run()) { IsBackground = true };
+var trayThread = new Thread(() => new TrayApp(port, dataDir, firstRun, lan.Listening, lifetime.ApplicationStopping, lifetime.StopApplication).Run()) { IsBackground = true };
 trayThread.SetApartmentState(ApartmentState.STA);
 trayThread.Start();
 

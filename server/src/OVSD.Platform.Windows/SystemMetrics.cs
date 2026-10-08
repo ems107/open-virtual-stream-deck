@@ -5,20 +5,22 @@ using Microsoft.Extensions.Logging;
 using OVSD.Core.Model;
 using OVSD.Core.Storage;
 using OVSD.Core.Variables;
+using OVSD.Platform.Windows.Sensors;
 
 namespace OVSD.Platform.Windows;
 
 /// <summary>
 /// Publishes sys.* variables every second: CPU, RAM and network from Win32, plus GPU/CPU sensors from
-/// LibreHardwareMonitor when enabled in settings.
+/// LibreHardwareMonitor when enabled in settings, and CPU temperature/power from the sensor service.
 /// </summary>
-public sealed class SystemMetrics(VariableStore variables, ConfigRepository config, ILogger<SystemMetrics> logger) : BackgroundService
+public sealed class SystemMetrics(VariableStore variables, ConfigRepository config, SensorPipeClient sensorService, ILogger<SystemMetrics> logger) : BackgroundService
 {
     private ulong _lastIdle, _lastTotal;
     private long _lastRx, _lastTx;
     private DateTime _lastNetSample;
     private Computer? _computer;
     private MetricsSettings? _sensorSettings;
+    private CpuSensors? _cpuSensors;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -48,6 +50,7 @@ public sealed class SystemMetrics(VariableStore variables, ConfigRepository conf
         finally
         {
             _computer?.Close();
+            _cpuSensors?.Dispose();
         }
     }
 
@@ -110,11 +113,11 @@ public sealed class SystemMetrics(VariableStore variables, ConfigRepository conf
             _computer?.Close();
             _computer = null;
             _sensorSettings = settings;
-            if (settings.GpuSensors || settings.CpuSensors)
+            if (settings.GpuSensors)
             {
                 try
                 {
-                    _computer = new Computer { IsGpuEnabled = settings.GpuSensors, IsCpuEnabled = settings.CpuSensors };
+                    _computer = new Computer { IsGpuEnabled = true };
                     _computer.Open();
                 }
                 catch (Exception ex)
@@ -124,13 +127,12 @@ public sealed class SystemMetrics(VariableStore variables, ConfigRepository conf
                 }
             }
         }
-        if (_computer is null) return;
 
-        var gpus = _computer.Hardware
+        var gpus = _computer?.Hardware
             .Where(h => h.HardwareType is HardwareType.GpuNvidia or HardwareType.GpuAmd or HardwareType.GpuIntel)
             .OrderBy(h => h.HardwareType == HardwareType.GpuIntel) // prefer the discrete GPU
             .ToList();
-        if (gpus.FirstOrDefault() is { } gpu)
+        if (gpus?.FirstOrDefault() is { } gpu)
         {
             gpu.Update();
             variables.Set("sys.gpu", Sensor(gpu, SensorType.Load, "GPU Core"));
@@ -139,16 +141,27 @@ public sealed class SystemMetrics(VariableStore variables, ConfigRepository conf
             variables.Set("sys.gpu.name", gpu.Name);
         }
 
-        if (_computer.Hardware.FirstOrDefault(h => h.HardwareType == HardwareType.Cpu) is { } cpu)
+        // CPU sensors need the PawnIO driver, which only an elevated process can use. The app runs as the
+        // user, so they come from the separate sensor service (or from here when OVSD itself runs elevated).
+        CpuReading? cpu = null;
+        if (sensorService.Latest is { } message) cpu = message.Cpu;
+        else if (Environment.IsPrivilegedProcess && CpuSensors.DriverInstalled)
         {
-            cpu.Update();
-            variables.Set("sys.cpu.temp",
-                Sensor(cpu, SensorType.Temperature, "CPU Package") ??
-                Sensor(cpu, SensorType.Temperature, "Core (Tctl/Tdie)") ??
-                Sensor(cpu, SensorType.Temperature, null));
+            try
+            {
+                _cpuSensors ??= new CpuSensors();
+                cpu = _cpuSensors.Read();
+            }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "CPU sensors unavailable");
+            }
         }
+        variables.Set("sys.cpu.temp", cpu?.Temperature);
+        variables.Set("sys.cpu.power", cpu?.Power);
+        variables.Set("sys.cpu.clock", cpu?.Clock);
+        if (cpu?.Name is { } name) variables.Set("sys.cpu.name", name);
     }
-
     private static double? Sensor(IHardware hardware, SensorType type, string? name)
     {
         var sensor = hardware.Sensors.FirstOrDefault(s => s.SensorType == type && (name is null || s.Name == name));

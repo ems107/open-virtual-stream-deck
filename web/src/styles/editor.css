@@ -680,3 +680,46 @@ table.variables td.value {
     display: none;
   }
 }
+
+/* ---------------------------------------------------------------- this PC (settings) */
+
+.system-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.system-row + .system-row {
+  border-top: 1px solid var(--border);
+}
+
+.system-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.system-row button {
+  flex-shrink: 0;
+}
+
+.lan-banner {
+  margin: 0.5rem 1rem 0;
+}
+
+.pair-page .lan-banner {
+  margin: 0 0 1rem;
+  text-align: left;
+}
+
+.pair-page .lan-banner {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pair-page .lan-banner > svg {
+  display: none;
+}

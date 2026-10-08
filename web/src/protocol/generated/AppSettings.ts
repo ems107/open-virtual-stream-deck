@@ -9,7 +9,6 @@ export interface AppSettings {
   }
   metrics: {
     gpuSensors: boolean
-    cpuSensors: boolean
   }
   obs: {
     enabled: boolean

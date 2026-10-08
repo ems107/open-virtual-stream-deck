@@ -12,7 +12,7 @@ const dataDir = mkdtempSync(join(tmpdir(), 'ovsd-e2e-'))
 
 const child = spawn(
   'dotnet',
-  ['run', '--project', join(root, 'server/src/OVSD.Host'), '--', '--no-tray', '--Ovsd:DryRun=true', `--Ovsd:Port=${port}`, `--Ovsd:DataDir=${dataDir}`],
+  ['run', '--project', join(root, 'server/src/OVSD.Host'), '--', '--no-tray', '--Ovsd:DryRun=true', '--Ovsd:Network=lan', `--Ovsd:Port=${port}`, `--Ovsd:DataDir=${dataDir}`],
   { stdio: 'inherit' },
 )
 const stop = () => child.kill()

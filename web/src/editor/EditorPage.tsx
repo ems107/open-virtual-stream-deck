@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Route, Routes } from 'react-router'
 import { StatusBadge } from '../StatusBadge'
+import { LanBanner } from '../components/ThisPc'
 import { Toasts } from '../components/Toasts'
 import { Icon } from '../icons'
 import { DevicesPanel } from './DevicesPanel'
@@ -45,6 +46,7 @@ export function EditorPage() {
           </a>
         </div>
       </header>
+      <LanBanner />
       <main className="editor-main">
         <Routes>
           <Route index element={<ProfileEditor />} />

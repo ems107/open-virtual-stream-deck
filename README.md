@@ -16,13 +16,15 @@ Stream deck virtual y muy personalizable. Un servidor en Windows ejecuta las acc
 
 Requisitos: Windows 10 (versión 2004 o posterior) u 11 de 64 bits. El móvil o la tablet solo necesitan un navegador; no se instala nada en ellos.
 
-1. Descarga `OVSD-Setup-x.y.z.exe` de la página de *Releases* y ejecútalo.
-   - **Solo para mí** (por defecto): no pide permisos de administrador y se instala en `%LOCALAPPDATA%\Programs\OVSD`.
-   - **Para todos los usuarios**: pide administrador y además crea la regla del firewall, así que Windows no preguntará nada después.
-2. Al terminar se abre OVSD: aparece un icono en la bandeja del sistema (junto al reloj) y el editor en tu navegador.
-3. Si Windows pregunta por el firewall, marca **Redes privadas** y pulsa **Permitir acceso**. Sin esto, el móvil no puede conectarse.
+1. Descarga `OVSD-Setup-x.y.z.exe` de la página de [*Releases*](https://github.com/ems107/open-virtual-stream-deck/releases/latest) y ejecútalo. Se instala para tu usuario (`%LOCALAPPDATA%\Programs\OVSD`) y OVSD funciona siempre con tus permisos normales.
+2. En las opciones de instalación hay dos permisos del sistema. Si marcas alguno, Windows pide confirmación **una sola vez** para ambos:
+   - **Permitir que tus móviles y tablets se conecten** (marcado por defecto). Crea la regla del firewall de Windows, solo para redes privadas, así que Windows nunca mostrará su aviso de «¿Permitir acceso?».
+   - **Temperatura de CPU** (opcional; ver [Temperatura de CPU](#temperatura-de-cpu)).
+3. Al terminar se abre OVSD: aparece un icono en la bandeja del sistema (junto al reloj) y el editor en tu navegador.
 
-¿Prefieres no instalar nada? Descarga `OVSD-portable-vx.y.z.zip`, descomprímelo donde quieras y ejecuta `OVSD.exe`.
+Todo esto se puede activar o desactivar más tarde en el editor: **Ajustes → Este PC**.
+
+¿Prefieres no instalar nada? Descarga `OVSD-portable-vx.y.z.zip`, descomprímelo donde quieras y ejecuta `OVSD.exe`. La primera vez el editor te mostrará el botón **Permitir conexiones**. Mientras no lo pulses, OVSD solo escucha en el propio PC, así que Windows no muestra ningún aviso.
 
 Para desinstalar, ve a *Configuración de Windows → Aplicaciones*. Al desinstalar, OVSD pregunta si quieres borrar también tus perfiles.
 
@@ -36,6 +38,19 @@ Para desinstalar, ve a *Configuración de Windows → Aplicaciones*. Al desinsta
 OVSD se queda en la bandeja mientras está en marcha; para cerrarlo, haz clic derecho en el icono → **Salir**. Desde ese mismo menú puedes activar **Iniciar con Windows**.
 
 Los datos se guardan en `%APPDATA%\OVSD` (perfiles, imágenes, copias de seguridad, ajustes y logs). Para hacer copia de seguridad o pasarlos a otro PC, copia esa carpeta o exporta los perfiles en `.zip` desde el editor.
+
+## Temperatura de CPU
+
+Windows solo deja leer los sensores internos del procesador a un driver del sistema. OVSD usa [PawnIO](https://pawnio.eu), el driver firmado que usa LibreHardwareMonitor, y solo un proceso con permisos de administrador puede hablar con él.
+
+Para no ejecutar OVSD entero como administrador, la lectura se separa:
+
+- **Servicio `OVSD Sensors`** (Windows, cuenta del sistema). Es una copia de `OVSD.exe` en `C:\Program Files\OVSD Sensors`, una carpeta que solo un administrador puede modificar. Lo único que hace es leer temperatura, consumo y frecuencia de la CPU cada segundo y publicarlos por una tubería con nombre (*named pipe*) de solo lectura. No abre puertos de red, no ejecuta acciones y no acepta órdenes.
+- **OVSD** (tu usuario, sin permisos especiales). Lee esa tubería y publica `sys.cpu.temp`, `sys.cpu.power` y `sys.cpu.clock`. Las teclas, comandos y demás acciones siguen ejecutándose con tu usuario.
+
+Se activa en el instalador o en *Ajustes → Este PC → Temperatura de CPU*, con una única confirmación de Windows. Si PawnIO no está instalado, se descarga de su versión oficial y se comprueba su huella SHA-256 antes de instalarlo. Al desactivarlo o desinstalar OVSD se elimina el servicio. PawnIO queda instalado, porque otros programas pueden usarlo, y se puede quitar desde *Aplicaciones*.
+
+Los sensores de GPU (`sys.gpu`, `sys.gpu.temp`) funcionan sin nada de esto.
 
 ## Estructura
 
@@ -72,6 +87,7 @@ Opciones (`appsettings.json` o `--Ovsd:Clave=valor`):
 | `Ovsd:DataDir` | `%APPDATA%\OVSD` | Carpeta de datos |
 | `Ovsd:DryRun` | `false` | No toca el sistema: las acciones solo se registran en la variable `dryrun.last` |
 | `Ovsd:ServerName` | `OVSD` | Nombre que ven los dispositivos |
+| `Ovsd:Network` | `auto` | `auto`: escucha en la red cuando el firewall lo permite (si no, solo en este PC, sin avisos de Windows) · `lan`: siempre · `local`: solo este PC |
 
 ## Tests
 
@@ -95,6 +111,10 @@ La versión se define en `<Version>` de `server/src/OVSD.Host/OVSD.Host.csproj`.
 - **Seguridad**: el PC (localhost) tiene acceso total. Los demás dispositivos necesitan emparejarse y se pueden desvincular desde *Dispositivos*. Al ejecutar comandos o enviar teclas, trata los dispositivos emparejados como de confianza.
 - **HTTP en la LAN**: no se usa HTTPS, así que el navegador no ofrece «instalar app». La pantalla se mantiene encendida con un vídeo invisible (NoSleep) y la pantalla completa se activa desde el menú del deck.
 - **Ventanas de administrador**: Windows impide enviar teclas a programas elevados salvo que OVSD también se ejecute como administrador.
-- **Temperatura de CPU**: Windows solo deja leer los sensores internos del procesador a un driver de kernel. OVSD usa LibreHardwareMonitor, que necesita ejecutarse como administrador y el driver PawnIO instalado. Sin eso, `sys.cpu.temp` queda vacío y el resto funciona igual. Los sensores de GPU funcionan sin permisos especiales.
+- **Red y firewall**: OVSD solo acepta conexiones de otros dispositivos en redes **privadas**. Si Windows marcó tu WiFi como pública, *Ajustes → Este PC* lo detecta y ofrece marcarla como privada. La opción `Ovsd:Network` acepta tres valores: `auto` (por defecto: escucha en la red cuando el firewall lo permite), `lan` (siempre) y `local` (solo este PC).
 - **MQTT / Home Assistant**: en *Ajustes → MQTT*, indica la dirección del broker (en Home Assistant, el complemento *Mosquitto broker*, normalmente `IP-de-HA:1883`) y un usuario y contraseña de Home Assistant. Los mensajes de los temas suscritos aparecen como variables `mqtt.<tema>`, y la acción *MQTT: publicar* envía mensajes.
 - **Discord**: para silenciar o ensordecer con el estado real hace falta una aplicación propia en discord.com/developers (Client ID y secret, redirección `http://localhost`). Sin ella, usa acciones de atajo de teclado con los atajos de Discord.
+
+## Licencia
+
+[MIT](LICENSE). Componentes de terceros: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

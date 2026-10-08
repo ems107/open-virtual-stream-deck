@@ -18,7 +18,8 @@ public sealed record DeviceView(string Id, string Name, DateTimeOffset PairedAt,
 public sealed record DeviceUpdate(string? Name, string? ProfileId, bool? AutoProfile);
 public sealed record ClaimRequest(string Code, string? Name);
 public sealed record PairInfo(string Code, DateTimeOffset ExpiresAt, string Url, List<string> Urls);
-public sealed record ServerInfo(string Name, string Version, string Url, List<string> Urls, bool IsLocal, bool Authorized);
+/// <param name="LanReady">Whether other devices can connect (false until LAN access is allowed in the firewall).</param>
+public sealed record ServerInfo(string Name, string Version, string Url, List<string> Urls, bool IsLocal, bool Authorized, bool LanReady);
 public sealed record AutostartState(bool Enabled);
 public sealed record UploadResult(string Url);
 
@@ -26,14 +27,14 @@ public static class ApiEndpoints
 {
     private const long MaxUploadBytes = 20 * 1024 * 1024;
 
-    public static void MapOvsdApi(this WebApplication app, int port)
+    public static void MapOvsdApi(this WebApplication app, int port, bool lanReady)
     {
         var api = app.MapGroup("/api");
 
         // ---------------------------------------------------------------- public
         api.MapGet("/server", (HttpContext ctx, DeviceAuth auth, Microsoft.Extensions.Options.IOptions<OvsdOptions> o) =>
             new ServerInfo(o.Value.ServerName, AppInfo.Version,
-                NetworkInfo.GetPrimaryUrl(port), NetworkInfo.GetAllUrls(port), DeviceAuth.IsLocal(ctx), auth.IsAuthorized(ctx)));
+                NetworkInfo.GetPrimaryUrl(port), NetworkInfo.GetAllUrls(port), DeviceAuth.IsLocal(ctx), auth.IsAuthorized(ctx), lanReady));
 
         api.MapPost("/pair/claim", (ClaimRequest request, PairingService pairing) =>
             pairing.Claim(request.Code, request.Name) is { } result

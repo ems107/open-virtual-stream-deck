@@ -1,6 +1,7 @@
 ﻿; Inno Setup script for Open Virtual Stream Deck. Built by scripts\build-installer.ps1:
 ;   ISCC.exe /DAppVersion=1.0.0 /DSourceDir=..\dist installer\ovsd.iss  ->  dist\OVSD-Setup-1.0.0.exe
-; Installs per user by default (no admin prompt); choosing "all users" also adds the firewall rule.
+; Installs per user by default (no admin needed for the files). The two system-wide options (firewall
+; rules, CPU sensor service) run together in one elevated "OVSD.exe --setup" call: a single UAC prompt.
 
 #ifndef AppVersion
   #define AppVersion "0.0.0"
@@ -15,6 +16,7 @@ AppName=Open Virtual Stream Deck
 AppVersion={#AppVersion}
 AppVerName=Open Virtual Stream Deck {#AppVersion}
 AppPublisher=OVSD
+AppPublisherURL=https://github.com/ems107/open-virtual-stream-deck
 DefaultDirName={autopf}\OVSD
 DefaultGroupName=Open Virtual Stream Deck
 DisableProgramGroupPage=yes
@@ -40,14 +42,24 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 [CustomMessages]
 es.AutostartTask=Iniciar OVSD con Windows
 en.AutostartTask=Start OVSD with Windows
+es.SystemGroup=Permisos del sistema (Windows pedirá confirmación una sola vez):
+en.SystemGroup=System permissions (Windows asks for confirmation once):
+es.FirewallTask=Permitir que tus móviles y tablets se conecten (regla del firewall solo para redes privadas)
+en.FirewallTask=Let your phones and tablets connect (firewall rule for private networks only)
+es.SensorsTask=Temperatura de CPU (instala el driver PawnIO y un servicio que solo lee los sensores)
+en.SensorsTask=CPU temperature (installs the PawnIO driver and a service that only reads the sensors)
 es.LaunchApp=Abrir Open Virtual Stream Deck
 en.LaunchApp=Launch Open Virtual Stream Deck
+es.SetupFailed=No se han podido aplicar los permisos del sistema. Puedes hacerlo más tarde desde OVSD: Ajustes → Este PC.
+en.SetupFailed=The system permissions could not be applied. You can do it later in OVSD: Settings → This PC.
 es.DeleteData=¿Borrar también tus perfiles, imágenes y ajustes?%n%n(%1)%n%nSi vas a reinstalar OVSD, responde No para conservarlos.
 en.DeleteData=Also delete your profiles, images and settings?%n%n(%1)%n%nAnswer No to keep them if you plan to reinstall OVSD.
 
 [Tasks]
 Name: "autostart"; Description: "{cm:AutostartTask}"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "firewall"; Description: "{cm:FirewallTask}"; GroupDescription: "{cm:SystemGroup}"
+Name: "sensors"; Description: "{cm:SensorsTask}"; GroupDescription: "{cm:SystemGroup}"; Flags: unchecked
 
 [Files]
 Source: "{#SourceDir}\OVSD.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -63,19 +75,34 @@ Name: "{autodesktop}\Open Virtual Stream Deck"; Filename: "{app}\OVSD.exe"; Task
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "OpenVirtualStreamDeck"; ValueData: """{app}\OVSD.exe"""; Tasks: autostart; Flags: uninsdeletevalue
 
 [Run]
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Open Virtual Stream Deck"" dir=in action=allow program=""{app}\OVSD.exe"" profile=private enable=yes"; Flags: runhidden; Check: IsAdminInstallMode
 Filename: "{app}\OVSD.exe"; Description: "{cm:LaunchApp}"; Flags: postinstall nowait skipifsilent
 
-[UninstallRun]
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Open Virtual Stream Deck"""; Flags: runhidden; Check: IsAdminInstallMode; RunOnceId: "DelFirewallRule"
+[UninstallDelete]
+Type: files; Name: "{app}\firewall.configured"
 
 [Code]
+const
+  SensorServiceKey = 'SYSTEM\CurrentControlSet\Services\OVSDSensors';
+
+{ Runs "OVSD.exe --setup <tasks>" with administrator rights: directly when the installer already has
+  them, otherwise through one UAC prompt. }
+function RunElevatedSetup(const Exe, Tasks: String): Boolean;
+var
+  ResultCode: Integer;
+begin
+  if IsAdmin() then
+    Result := Exec(Exe, '--setup ' + Tasks, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0)
+  else
+    Result := ShellExec('runas', Exe, '--setup ' + Tasks, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
+end;
+
 procedure StopRunningApp();
 var
   ResultCode: Integer;
 begin
-  { OVSD lives in the tray; it must exit before its executable can be replaced or removed. }
-  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM OVSD.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  { OVSD lives in the tray; it must exit before its executable can be replaced or removed. Only the
+    user's copies (session > 0): the sensor service runs in session 0 from its own folder. }
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM OVSD.exe /FI "SESSION ne 0"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   Sleep(500);
 end;
 
@@ -85,9 +112,29 @@ begin
   Result := '';
 end;
 
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  Tasks: String;
+begin
+  if CurStep <> ssPostInstall then Exit;
+  Tasks := '';
+  if WizardIsTaskSelected('firewall') then Tasks := Tasks + ' firewall';
+  { An existing sensor service is refreshed with the new version of OVSD. }
+  if WizardIsTaskSelected('sensors') or RegKeyExists(HKLM, SensorServiceKey) then Tasks := Tasks + ' sensors';
+  if Tasks <> '' then
+    if not RunElevatedSetup(ExpandConstant('{app}\OVSD.exe'), Trim(Tasks)) then
+      if not WizardSilent() then MsgBox(CustomMessage('SetupFailed'), mbInformation, MB_OK);
+end;
+
 function InitializeUninstall(): Boolean;
+var
+  Tasks: String;
 begin
   StopRunningApp();
+  Tasks := '';
+  if FileExists(ExpandConstant('{app}\firewall.configured')) then Tasks := Tasks + ' remove-firewall';
+  if RegKeyExists(HKLM, SensorServiceKey) then Tasks := Tasks + ' remove-sensors';
+  if Tasks <> '' then RunElevatedSetup(ExpandConstant('{app}\OVSD.exe'), Trim(Tasks));
   Result := True;
 end;
 

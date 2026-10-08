@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api'
 import { Field, NumberInput, StatusDot, Toggle } from '../components/ui'
+import { ThisPcCard } from '../components/ThisPc'
 import { Icon } from '../icons'
 import type { AppSettings, IntegrationStatus, ProfileListItem, ServerInfo } from '../protocol'
 
@@ -64,6 +65,8 @@ export function SettingsPanel() {
       </header>
       {error && <div className="banner error">{error}</div>}
 
+      {server?.isLocal && <ThisPcCard />}
+
       <section className="card">
         <h2>{t('settings.general')}</h2>
         <Field label={t('settings.language')}>
@@ -117,7 +120,6 @@ export function SettingsPanel() {
       <section className="card">
         <h2>{t('settings.metrics')}</h2>
         <Toggle checked={settings.metrics.gpuSensors} label={t('settings.gpuSensors')} onChange={(v) => patch((s) => void (s.metrics.gpuSensors = v))} />
-        <Toggle checked={settings.metrics.cpuSensors} label={t('settings.cpuSensors')} onChange={(v) => patch((s) => void (s.metrics.cpuSensors = v))} />
         <p className="muted small">{t('settings.cpuSensorsHint')}</p>
       </section>
 
