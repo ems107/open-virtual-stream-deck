@@ -115,3 +115,17 @@ test('quick edit on the device changes a tile', async ({ page }) => {
   await expect(page.locator('.quick-edit')).toHaveCount(0)
   await expect(tile(page, /^Web$/)).toBeVisible({ timeout: 5000 })
 })
+
+test.describe('touch screens', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 450, height: 900 } })
+
+  // Regression: the sheet opened on pointerup and the click synthesized after the touch closed it again.
+  test('tapping a tile in edit mode keeps the quick edit sheet open', async ({ page }) => {
+    await page.goto('/')
+    await page.locator('.deck-menu-button').tap()
+    await page.locator('.menu-item').filter({ hasText: /Edit|Editar/ }).first().tap()
+    await tile(page, 'Apps').tap()
+    await page.waitForTimeout(500)
+    await expect(page.locator('.quick-edit')).toBeVisible()
+  })
+})

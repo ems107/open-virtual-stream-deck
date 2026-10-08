@@ -176,7 +176,8 @@
 }
 
 .text-top .tile-content {
-  justify-content: flex-start;
+  /* Text above the icon; in a reversed column "flex-end" is the top. */
+  justify-content: flex-end;
   flex-direction: column-reverse;
 }
 
@@ -203,6 +204,32 @@
 
 .has-image .tile-text {
   text-shadow: 0 1px 3px #000, 0 0 8px #000a;
+}
+
+/* Darken the edge of busy images (album art, thumbnails) behind the text. */
+.has-image.text-bottom:has(.tile-text)::after,
+.has-image.text-top:has(.tile-text)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  pointer-events: none;
+}
+
+.has-image.text-bottom:has(.tile-text)::after {
+  bottom: 0;
+  background: linear-gradient(transparent, #000b);
+}
+
+.has-image.text-top:has(.tile-text)::after {
+  top: 0;
+  background: linear-gradient(#000b, transparent);
+}
+
+.has-image .tile-content {
+  position: relative;
+  z-index: 1;
 }
 
 .tile-graph,
@@ -295,4 +322,24 @@
   font-weight: 700;
   letter-spacing: 0.3rem;
   font-family: ui-monospace, Consolas, monospace;
+}
+
+.fullscreen-resume {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  background: #000a;
+}
+
+.fullscreen-resume button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.1rem;
+  padding: 0.7rem 1.2rem;
 }

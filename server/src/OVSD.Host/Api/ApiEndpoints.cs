@@ -32,7 +32,7 @@ public static class ApiEndpoints
 
         // ---------------------------------------------------------------- public
         api.MapGet("/server", (HttpContext ctx, DeviceAuth auth, Microsoft.Extensions.Options.IOptions<OvsdOptions> o) =>
-            new ServerInfo(o.Value.ServerName, typeof(ApiEndpoints).Assembly.GetName().Version?.ToString(3) ?? "0.0.0",
+            new ServerInfo(o.Value.ServerName, AppInfo.Version,
                 NetworkInfo.GetPrimaryUrl(port), NetworkInfo.GetAllUrls(port), DeviceAuth.IsLocal(ctx), auth.IsAuthorized(ctx)));
 
         api.MapPost("/pair/claim", (ClaimRequest request, PairingService pairing) =>

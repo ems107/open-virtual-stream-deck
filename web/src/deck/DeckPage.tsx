@@ -6,6 +6,8 @@ import { deckSocket, useConnection } from '../state/connection'
 import { useDeck } from '../state/deck'
 import { DeckGrid } from './DeckGrid'
 import { DeckMenu } from './DeckMenu'
+import { enterFullscreen, fullscreenPreferred, fullscreenSupported, setFullscreenPreferred, useIsFullscreen } from './fullscreen'
+import { Icon } from '../icons'
 import { enableKeepAwake } from './keepAwake'
 import { PairScreen } from './PairScreen'
 import { QuickEdit, type QuickEditTarget } from './QuickEdit'
@@ -17,6 +19,13 @@ export function DeckPage() {
   const [editMode, setEditMode] = useState(false)
   const [editing, setEditing] = useState<QuickEditTarget | null>(null)
   const [pairError, setPairError] = useState<string | null>(null)
+  const fullscreen = useIsFullscreen()
+  const [dismissed, setDismissed] = useState(false)
+  useEffect(() => {
+    if (fullscreen) setDismissed(false)
+  }, [fullscreen])
+  const resumeFullscreen =
+    !fullscreen && !dismissed && !editing && status === 'connected' && fullscreenSupported() && fullscreenPreferred()
 
   // Opened from the QR code: /?pair=123456 → claim a token and reconnect as this device.
   useEffect(() => {
@@ -55,6 +64,23 @@ export function DeckPage() {
       <DeckMenu editMode={editMode} onToggleEdit={() => setEditMode((v) => !v)} />
       {status !== 'connected' && layout && <div className="disconnected-overlay">{t(`status.${status}`)}</div>}
       {editing && layout && <QuickEdit layout={layout} target={editing} onClose={() => setEditing(null)} />}
+      {resumeFullscreen && (
+        // A full-screen catcher, so the tap that restores fullscreen can't also press a button.
+        <div className="fullscreen-resume" onClick={() => void enterFullscreen(layout ?? undefined).catch(() => setDismissed(true))}>
+          <button className="primary">
+            <Icon name="mdi:fullscreen" /> {t('deck.resumeFullscreen')}
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setFullscreenPreferred(false)
+              setDismissed(true)
+            }}
+          >
+            {t('deck.stayWindowed')}
+          </button>
+        </div>
+      )}
       <Toasts />
     </main>
   )

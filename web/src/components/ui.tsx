@@ -67,7 +67,12 @@ export function ColorField(props: { label: string; value: string | null | undefi
   return (
     <Field label={props.label}>
       <div className="color-field">
-        <input type="color" value={isHex ? value : '#000000'} onChange={(e) => props.onChange(e.target.value)} />
+        <input
+          type="color"
+          className={isHex ? undefined : 'inherited'}
+          value={isHex ? value : '#808080'}
+          onChange={(e) => props.onChange(e.target.value)}
+        />
         <input value={value} placeholder={props.placeholder ?? t('common.inherited')} onChange={(e) => props.onChange(e.target.value || null)} />
         {value && (
           <button type="button" className="icon-button" onClick={() => props.onChange(null)} title={t('common.clear')}>

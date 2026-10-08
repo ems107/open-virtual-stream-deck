@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCatalog, useVariableNames } from '../editor/catalog'
 import { useEditor, useSelectedControl } from '../editor/editorStore'
@@ -17,6 +17,7 @@ export function QuickEdit({ layout, target, onClose }: { layout: LayoutMessage; 
   const { t } = useTranslation()
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const pressedBackdrop = useRef(false)
   const control = useSelectedControl()
   const updateControl = useEditor((s) => s.updateControl)
   const variables = useVariableNames()
@@ -72,7 +73,13 @@ export function QuickEdit({ layout, target, onClose }: { layout: LayoutMessage; 
   }
 
   return (
-    <div className="sheet-backdrop" onClick={() => void close()}>
+    // The sheet opens on the tile's pointerup, so on touch screens the click that follows lands on this
+    // backdrop: only close when the press also started here.
+    <div
+      className="sheet-backdrop"
+      onPointerDown={(e) => (pressedBackdrop.current = e.target === e.currentTarget)}
+      onClick={(e) => e.target === e.currentTarget && pressedBackdrop.current && void close()}
+    >
       <div className="sheet quick-edit" onClick={(e) => e.stopPropagation()}>
         <header className="sheet-header">
           <strong>{control ? t('quickEdit.editTile') : t('quickEdit.newTile')}</strong>

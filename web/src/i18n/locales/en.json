@@ -30,6 +30,8 @@
     "fullscreen": "Fullscreen",
     "keepAwakeOn": "Screen stays on",
     "keepAwakeOff": "Screen may turn off",
+    "resumeFullscreen": "Back to fullscreen",
+    "stayWindowed": "Stay windowed",
     "edit": "Edit",
     "editDone": "Finish editing",
     "openEditor": "Full editor",

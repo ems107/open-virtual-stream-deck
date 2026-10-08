@@ -53,7 +53,7 @@ public sealed class DeckSocketHandler(
             await SendAsync(socket, new WelcomeMessage(
                 ProtocolInfo.Version,
                 options.Value.ServerName,
-                typeof(DeckSocketHandler).Assembly.GetName().Version?.ToString(3) ?? "0.0.0",
+                AppInfo.Version,
                 device?.Id,
                 device?.Name,
                 isLocal,

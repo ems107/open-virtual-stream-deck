@@ -20,3 +20,6 @@ web/test-results/
 web/playwright-report/
 dist/
 .devdata/
+
+# Local build tools (Inno Setup, downloaded by scripts/build-installer.ps1)
+.tools/

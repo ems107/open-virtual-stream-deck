@@ -1,0 +1,66 @@
+# Tests every push; a "v*" tag (e.g. v1.0.0) also builds OVSD.exe + the installer and publishes a GitHub release.
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Web unit tests
+        working-directory: web
+        run: npm test
+
+      - name: Server tests
+        run: dotnet test server/OVSD.sln
+
+      - name: Build OVSD.exe and installer
+        shell: pwsh
+        run: ./scripts/build-installer.ps1
+
+      - name: Check tag matches the app version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dist/OVSD-Setup-$($env:GITHUB_REF_NAME.TrimStart('v')).exe")) {
+            throw "Tag $env:GITHUB_REF_NAME does not match <Version> in OVSD.Host.csproj"
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ovsd
+          path: |
+            dist/OVSD-Setup-*.exe
+            dist/OVSD.exe
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Compress-Archive -Path dist/OVSD.exe, dist/appsettings.json -DestinationPath "dist/OVSD-portable-$env:GITHUB_REF_NAME.zip"
+          gh release create $env:GITHUB_REF_NAME "dist/OVSD-Setup-$($env:GITHUB_REF_NAME.TrimStart('v')).exe" "dist/OVSD-portable-$env:GITHUB_REF_NAME.zip" --title "OVSD $env:GITHUB_REF_NAME" --generate-notes

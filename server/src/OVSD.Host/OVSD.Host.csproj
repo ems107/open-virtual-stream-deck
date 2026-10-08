@@ -6,7 +6,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>OVSD.Host</RootNamespace>
     <AssemblyName>OVSD</AssemblyName>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
+    <Product>Open Virtual Stream Deck</Product>
+    <AssemblyTitle>Open Virtual Stream Deck</AssemblyTitle>
+    <Description>Virtual stream deck server: runs the actions and serves the deck to phones and tablets.</Description>
     <ApplicationIcon Condition="Exists('ovsd.ico')">ovsd.ico</ApplicationIcon>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <!-- The client is served from embedded resources, not as ASP.NET static web assets. -->

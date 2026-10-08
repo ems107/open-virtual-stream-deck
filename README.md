@@ -12,16 +12,30 @@ Stream deck virtual y muy personalizable. Un servidor en Windows ejecuta las acc
 - **Editor** web completo en el PC y edición rápida desde el propio dispositivo, con deshacer/rehacer, copiar/pegar, arrastrar, exportar/importar `.zip` y versiones anteriores
 - **Emparejamiento** por QR o PIN: nadie más en tu red puede pulsar botones
 
+## Instalación
+
+Requisitos: Windows 10 (versión 2004 o posterior) u 11 de 64 bits. El móvil o la tablet solo necesitan un navegador; no se instala nada en ellos.
+
+1. Descarga `OVSD-Setup-x.y.z.exe` de la página de *Releases* y ejecútalo.
+   - **Solo para mí** (por defecto): no pide permisos de administrador y se instala en `%LOCALAPPDATA%\Programs\OVSD`.
+   - **Para todos los usuarios**: pide administrador y además crea la regla del firewall, así que Windows no preguntará nada después.
+2. Al terminar se abre OVSD: aparece un icono en la bandeja del sistema (junto al reloj) y el editor en tu navegador.
+3. Si Windows pregunta por el firewall, marca **Redes privadas** y pulsa **Permitir acceso**. Sin esto, el móvil no puede conectarse.
+
+¿Prefieres no instalar nada? Descarga `OVSD-portable-vx.y.z.zip`, descomprímelo donde quieras y ejecuta `OVSD.exe`.
+
+Para desinstalar, ve a *Configuración de Windows → Aplicaciones*. Al desinstalar, OVSD pregunta si quieres borrar también tus perfiles.
+
 ## Uso
 
-1. Ejecuta `OVSD.exe` (ver *Publicar*). Aparece un icono en la bandeja del sistema.
-2. La primera vez, Windows pregunta por el firewall: **permite el acceso en redes privadas**.
-3. Menú de la bandeja → **Conectar dispositivo** y escanea el QR con el móvil o la tablet (misma WiFi).
-4. Menú de la bandeja → **Abrir editor** (o doble clic en el icono) para diseñar los paneles.
+1. **Conectar el móvil o la tablet** (misma WiFi que el PC): clic derecho en el icono de la bandeja → **Conectar dispositivo (QR)** y escanea el código con la cámara. También puedes abrir la dirección que aparece en el navegador del móvil e introducir el PIN.
+2. **Diseñar los paneles**: doble clic en el icono de la bandeja (o **Abrir editor**). Los cambios se ven al instante en el móvil.
+3. En el móvil, el botón ⋮ de la esquina abre el menú del deck: perfiles, pantalla completa (gira la pantalla según la forma de tu rejilla y se recuerda), mantener la pantalla encendida, modo edición…
+4. Para abrirlo como una app, usa **Añadir a la pantalla de inicio** desde el menú del navegador.
 
-En el móvil, el botón ⋮ de la esquina abre el menú del deck: perfiles, pantalla completa, mantener la pantalla encendida, modo edición… Para una experiencia tipo app, usa **Añadir a la pantalla de inicio** desde el navegador.
+OVSD se queda en la bandeja mientras está en marcha; para cerrarlo, haz clic derecho en el icono → **Salir**. Desde ese mismo menú puedes activar **Iniciar con Windows**.
 
-Los datos se guardan en `%APPDATA%\OVSD` (perfiles, imágenes, copias de seguridad, ajustes y logs).
+Los datos se guardan en `%APPDATA%\OVSD` (perfiles, imágenes, copias de seguridad, ajustes y logs). Para hacer copia de seguridad o pasarlos a otro PC, copia esa carpeta o exporta los perfiles en `.zip` desde el editor.
 
 ## Estructura
 
@@ -70,15 +84,17 @@ cd web && npm run build && npm run e2e   # Playwright en Edge contra un servidor
 ## Publicar
 
 ```powershell
-.\scripts\publish.ps1            # genera dist\OVSD.exe autocontenido (no requiere instalar .NET)
+.\scripts\publish.ps1            # dist\OVSD.exe autocontenido (no requiere instalar .NET)
+.\scripts\build-installer.ps1    # lo anterior + dist\OVSD-Setup-<versión>.exe (Inno Setup; si no está instalado, descarga el compilador portátil en .tools\)
 ```
 
-Copia `OVSD.exe` (y opcionalmente `appsettings.json`) donde quieras. Puedes activar el arranque con Windows desde el menú de la bandeja o en Ajustes.
+La versión se define en `<Version>` de `server/src/OVSD.Host/OVSD.Host.csproj`. Para publicar una versión en GitHub, sube una etiqueta con la misma versión (`git tag v1.0.0 && git push --tags`). El workflow `.github/workflows/release.yml` pasa los tests, compila el instalador y la versión portable, y crea la *Release*.
 
 ## Notas
 
 - **Seguridad**: el PC (localhost) tiene acceso total. Los demás dispositivos necesitan emparejarse y se pueden desvincular desde *Dispositivos*. Al ejecutar comandos o enviar teclas, trata los dispositivos emparejados como de confianza.
 - **HTTP en la LAN**: no se usa HTTPS, así que el navegador no ofrece «instalar app». La pantalla se mantiene encendida con un vídeo invisible (NoSleep) y la pantalla completa se activa desde el menú del deck.
 - **Ventanas de administrador**: Windows impide enviar teclas a programas elevados salvo que OVSD también se ejecute como administrador.
-- **Temperatura de CPU**: requiere ejecutar como administrador y el driver PawnIO. Los sensores de GPU funcionan sin permisos especiales.
+- **Temperatura de CPU**: Windows solo deja leer los sensores internos del procesador a un driver de kernel. OVSD usa LibreHardwareMonitor, que necesita ejecutarse como administrador y el driver PawnIO instalado. Sin eso, `sys.cpu.temp` queda vacío y el resto funciona igual. Los sensores de GPU funcionan sin permisos especiales.
+- **MQTT / Home Assistant**: en *Ajustes → MQTT*, indica la dirección del broker (en Home Assistant, el complemento *Mosquitto broker*, normalmente `IP-de-HA:1883`) y un usuario y contraseña de Home Assistant. Los mensajes de los temas suscritos aparecen como variables `mqtt.<tema>`, y la acción *MQTT: publicar* envía mensajes.
 - **Discord**: para silenciar o ensordecer con el estado real hace falta una aplicación propia en discord.com/developers (Client ID y secret, redirección `http://localhost`). Sin ella, usa acciones de atajo de teclado con los atajos de Discord.

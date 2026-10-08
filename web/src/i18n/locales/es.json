@@ -30,6 +30,8 @@
     "fullscreen": "Pantalla completa",
     "keepAwakeOn": "Pantalla siempre encendida",
     "keepAwakeOff": "La pantalla puede apagarse",
+    "resumeFullscreen": "Volver a pantalla completa",
+    "stayWindowed": "Seguir en ventana",
     "edit": "Editar",
     "editDone": "Terminar edición",
     "openEditor": "Editor completo",

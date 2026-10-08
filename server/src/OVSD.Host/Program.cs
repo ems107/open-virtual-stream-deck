@@ -40,6 +40,8 @@ if (!isFirstInstance)
     return;
 }
 
+// The profiles folder is created (with a sample profile) on the very first start.
+var firstRun = !Directory.Exists(Path.Combine(dataDir, "profiles"));
 builder.Logging.AddProvider(new FileLoggerProvider(Path.Combine(dataDir, "logs")));
 builder.WebHost.ConfigureKestrel(k => k.ListenAnyIP(port));
 
@@ -101,11 +103,21 @@ if (noTray)
     return;
 }
 
-await app.StartAsync();
-app.Logger.LogInformation("OVSD listening on {Url} (data in {DataDir})", NetworkInfo.GetPrimaryUrl(port), dataDir);
+try
+{
+    await app.StartAsync();
+}
+catch (Exception e)
+{
+    app.Logger.LogCritical(e, "OVSD could not start");
+    TrayApp.ShowStartupError(port, e);
+    Environment.ExitCode = 1;
+    return;
+}
+app.Logger.LogInformation("OVSD {Version} listening on {Url} (data in {DataDir})", AppInfo.Version, NetworkInfo.GetPrimaryUrl(port), dataDir);
 
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-var trayThread = new Thread(() => new TrayApp(port, dataDir, lifetime.StopApplication).Run()) { IsBackground = true };
+var trayThread = new Thread(() => new TrayApp(port, dataDir, firstRun, lifetime.StopApplication).Run()) { IsBackground = true };
 trayThread.SetApartmentState(ApartmentState.STA);
 trayThread.Start();
 

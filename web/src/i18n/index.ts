@@ -13,4 +13,8 @@ void i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 })
 
+// Keep <html lang> in sync so browsers don't offer to translate the page.
+document.documentElement.lang = i18n.language
+i18n.on('languageChanged', (lng) => (document.documentElement.lang = lng))
+
 export default i18n

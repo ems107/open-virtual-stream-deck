@@ -4,6 +4,7 @@ import { setToken } from '../api'
 import { Icon } from '../icons'
 import { deckSocket, useConnection } from '../state/connection'
 import { useDeck } from '../state/deck'
+import { enterFullscreen, setFullscreenPreferred, useIsFullscreen } from './fullscreen'
 import { isKeepAwakeActive, keepAwakePreferred, setKeepAwakePreferred } from './keepAwake'
 
 interface DeckMenuProps {
@@ -18,16 +19,20 @@ export function DeckMenu({ editMode, onToggleEdit }: DeckMenuProps) {
   const layout = useDeck((s) => s.layout)
   const server = useConnection((s) => s.server)
   const [keepAwake, setKeepAwake] = useState(keepAwakePreferred())
-  const [fullscreen, setFullscreen] = useState(!!document.fullscreenElement)
+  const fullscreen = useIsFullscreen()
 
   const toggleFullscreen = async () => {
     try {
-      if (document.fullscreenElement) await document.exitFullscreen()
-      else await document.documentElement.requestFullscreen({ navigationUI: 'hide' })
+      if (document.fullscreenElement) {
+        setFullscreenPreferred(false)
+        await document.exitFullscreen()
+      } else {
+        setFullscreenPreferred(true)
+        await enterFullscreen(layout ?? undefined)
+      }
     } catch {
       // Not allowed (e.g. iOS Safari): add to home screen instead.
     }
-    setFullscreen(!!document.fullscreenElement)
   }
 
   const close = () => setOpen(false)
