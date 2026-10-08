@@ -286,6 +286,47 @@ function ConflictBanner() {
   )
 }
 
+interface DeletedProfile {
+  id: string
+  name: string
+  backup: string
+  deleted: string
+}
+
+/** Profiles deleted from the editor: their last version is kept and can be brought back. */
+function DeletedProfiles({ onRestored }: { onRestored: () => void }) {
+  const { t } = useTranslation()
+  const [deleted, setDeleted] = useState<DeletedProfile[]>([])
+  useEffect(() => {
+    void api.get<DeletedProfile[]>('/api/profiles/deleted').then(setDeleted)
+  }, [])
+  if (deleted.length === 0) return null
+  return (
+    <>
+      <h3>{t('editor.deletedProfiles')}</h3>
+      <ul className="backup-list">
+        {deleted.map((d) => (
+          <li key={d.id}>
+            <span>
+              <strong>{d.name}</strong> <span className="muted small">{new Date(d.deleted).toLocaleString()}</span>
+            </span>
+            <button
+              onClick={async () => {
+                await api.post(`/api/profiles/${d.id}/backups/${d.backup}/restore`)
+                await useEditor.getState().loadProfiles()
+                await useEditor.getState().open(d.id)
+                onRestored()
+              }}
+            >
+              {t('editor.restore')}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}
+
 function BackupsDialog({ profileId, onClose }: { profileId: string; onClose: () => void }) {
   const { t } = useTranslation()
   const [backups, setBackups] = useState<BackupInfo[] | null>(null)
@@ -320,6 +361,7 @@ function BackupsDialog({ profileId, onClose }: { profileId: string; onClose: () 
           ))}
         </ul>
       )}
+      <DeletedProfiles onRestored={onClose} />
     </Modal>
   )
 }

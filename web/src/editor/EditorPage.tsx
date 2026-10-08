@@ -6,7 +6,7 @@ import { LanBanner } from '../components/ThisPc'
 import { Toasts } from '../components/Toasts'
 import { Icon } from '../icons'
 import { DevicesPanel } from './DevicesPanel'
-import { HelpPanel } from './HelpPanel'
+import { HelpPanel } from '../help/HelpPanel'
 import { ProfileEditor } from './ProfileEditor'
 import { SettingsPanel } from './SettingsPanel'
 import { VariablesPanel } from './VariablesPanel'
@@ -53,7 +53,7 @@ export function EditorPage() {
           <Route path="devices" element={<DevicesPanel />} />
           <Route path="settings" element={<SettingsPanel />} />
           <Route path="variables" element={<VariablesPanel />} />
-          <Route path="help" element={<HelpPanel />} />
+          <Route path="help/:page?" element={<HelpPanel />} />
         </Routes>
       </main>
       <Toasts />

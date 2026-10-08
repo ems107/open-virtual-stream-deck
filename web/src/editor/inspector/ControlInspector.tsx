@@ -157,6 +157,11 @@ function StateTab({ control, onChange, variables }: Omit<ControlInspectorProps, 
         />
       </Field>
       <p className="muted small">{t(`state.${mode}Help`)}</p>
+      {mode === 'toggle' && (
+        <p className="muted small">
+          {t('state.toggleVariable')} <code>{`toggle.${control.id}`}</code>
+        </p>
+      )}
 
       {mode === 'expression' && (
         <>

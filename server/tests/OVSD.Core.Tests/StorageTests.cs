@@ -68,6 +68,22 @@ public class ProfileRepositoryTests : IDisposable
     }
 
     [Fact]
+    public void DeletedProfilesAreListedUntilRestored()
+    {
+        var repo = NewRepo();
+        var profile = repo.All[0];
+        Assert.Empty(repo.GetDeleted());
+
+        repo.Delete(profile.Id);
+        var deleted = Assert.Single(repo.GetDeleted());
+        Assert.Equal(profile.Name, deleted.Name);
+
+        repo.Restore(deleted.Id, deleted.Backup);
+        Assert.Equal(profile.Name, repo.Get(profile.Id)!.Name);
+        Assert.Empty(repo.GetDeleted());
+    }
+
+    [Fact]
     public void RejectsPathTraversalIds() =>
         Assert.Throws<ArgumentException>(() => NewRepo().Save(SampleProfile.Create() with { Id = "../evil" }));
 

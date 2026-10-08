@@ -5,6 +5,7 @@ using OVSD.Core.Model;
 namespace OVSD.Core.Storage;
 
 public sealed record BackupInfo(string Name, DateTimeOffset Created);
+public sealed record DeletedProfile(string Id, string Name, string Backup, DateTimeOffset Deleted);
 
 /// <summary>
 /// Profiles live in profiles/&lt;id&gt;.json and are cached in memory.
@@ -82,6 +83,24 @@ public sealed class ProfileRepository
             .Select(name => new BackupInfo(name, ParseBackupTime(name)))
             .OrderByDescending(b => b.Created)
             .ToList();
+    }
+
+    /// <summary>Deleted profiles that can still be restored (their last backup is the "-deleted" one).</summary>
+    public IReadOnlyList<DeletedProfile> GetDeleted()
+    {
+        var root = _paths.Backups;
+        if (!Directory.Exists(root)) return [];
+        var result = new List<DeletedProfile>();
+        foreach (var dir in Directory.GetDirectories(root))
+        {
+            var id = Path.GetFileName(dir);
+            if (Get(id) is not null) continue;
+            var last = GetBackups(id).FirstOrDefault();
+            if (last is null || !last.Name.EndsWith("-deleted", StringComparison.Ordinal)) continue;
+            var name = JsonFile.Read<Profile>(Path.Combine(dir, last.Name + ".json"))?.Name ?? id;
+            result.Add(new DeletedProfile(id, name, last.Name, last.Created));
+        }
+        return result.OrderByDescending(d => d.Deleted).ToList();
     }
 
     public Profile? Restore(string id, string backupName)

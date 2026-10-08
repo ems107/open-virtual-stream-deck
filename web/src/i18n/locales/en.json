@@ -169,7 +169,8 @@
     "expressionLabel": "State expression",
     "expressionHint": "Examples: audio.mic.muted · obs.scene · sys.cpu > 80",
     "addState": "new state",
-    "appearanceFor": "Look in state \"{{state}}\" (empty fields are inherited)"
+    "appearanceFor": "Look in state \"{{state}}\" (empty fields are inherited)",
+    "toggleVariable": "Toggle variable:"
   },
   "layout": {
     "rowSpan": "Height (rows)",
@@ -231,7 +232,8 @@
     "conflictOverwrite": "Overwrite with mine",
     "gridShrinkConfirm": "{{count}} tiles outside the new grid will be deleted. Continue?",
     "rows": "Rows",
-    "cols": "Columns"
+    "cols": "Columns",
+    "deletedProfiles": "Deleted profiles"
   },
   "theme": {
     "title": "Theme",
@@ -305,22 +307,6 @@
     "value": "Value",
     "copy": "Copy as template"
   },
-  "help": {
-    "title": "Help",
-    "templatesTitle": "Dynamic texts",
-    "templates": "Any text, icon, color or image can include expressions between {{ }}; they update as soon as variables change.",
-    "expressionsTitle": "Expressions",
-    "expressions": "Conditions, states and assignments use expressions: quoted texts, numbers, true/false, variables (names with unusual characters go in brackets: [mqtt.home/temp]), operators == != < <= > >= + - * / %, && || ! (or and/or/not), a ? b : c, ?? and functions.",
-    "functions": "Functions",
-    "variablesTitle": "Available variables",
-    "mqttVar": "last message of each subscribed topic",
-    "webhookVar": "last data received by the webhook",
-    "userVar": "your own variables; kept across restarts",
-    "toggleVar": "state of each toggle",
-    "valueVar": "slider value (in its actions)",
-    "gesturesTitle": "Gestures",
-    "gestures": "Each tile can have different actions for tap, long press, double tap, press and release. Sliders send their value in the variable value."
-  },
   "quickEdit": {
     "editTile": "Edit tile",
     "newTile": "New tile"
@@ -360,5 +346,41 @@
     "enable": "Turn on",
     "disable": "Turn off",
     "sensorsHelp": "Reading the CPU temperature needs a system driver (PawnIO) that only an administrator process can use. So OVSD installs a small separate service that only reads the sensors and passes them to OVSD, which keeps running as your normal user. Variables: sys.cpu.temp, sys.cpu.power, sys.cpu.clock."
+  },
+  "wiki": {
+    "search": "Search the help…",
+    "noResults": "No results.",
+    "sections": {
+      "start": "Get started",
+      "build": "Build your panels",
+      "integrations": "Integrations",
+      "more": "More",
+      "reference": "Reference"
+    },
+    "pages": {
+      "reference-actions": "All actions",
+      "reference-functions": "Functions",
+      "reference-keys": "Key names"
+    },
+    "actionsIntro": "Every action you can add to a key, with its options. Generated from your version of OVSD.",
+    "functionsIntro": "Functions you can use in expressions and in {{…}} dynamic text. Parameters with ? are optional.",
+    "keysIntro": "Key names for shortcuts: combine them with + (Ctrl+Shift+M); several combinations separated by spaces are pressed one after another. The easiest way is the editor's \"Record\" button: press the combination.",
+    "expression": "expression",
+    "examples": "Examples",
+    "paramList": "Picked from a list (devices, scenes, apps… on your PC).",
+    "paramExample": "Example:",
+    "paramTypes": {
+      "text": "Text (variables allowed).",
+      "multilineText": "Multi-line text (variables allowed).",
+      "number": "Number (variables allowed, e.g. {{value}}).",
+      "bool": "Yes / no.",
+      "select": "One of the options.",
+      "hotkey": "Key combination (\"Record\" button).",
+      "page": "A page of the profile.",
+      "profile": "One of your profiles.",
+      "expression": "Expression.",
+      "variable": "Variable name, e.g. user.result.",
+      "json": "JSON."
+    }
   }
 }

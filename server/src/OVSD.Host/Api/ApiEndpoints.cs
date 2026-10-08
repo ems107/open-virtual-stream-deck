@@ -235,6 +235,7 @@ public static class ApiEndpoints
         }).DisableAntiforgery();
 
         api.MapGet("/profiles/{id}/backups", (string id, ProfileRepository repo) => repo.GetBackups(id));
+        api.MapGet("/profiles/deleted", (ProfileRepository repo) => repo.GetDeleted());
 
         api.MapPost("/profiles/{id}/backups/{name}/restore", (string id, string name, ProfileRepository repo) =>
             repo.Restore(id, name) is { } p ? Results.Ok(p) : Results.NotFound());

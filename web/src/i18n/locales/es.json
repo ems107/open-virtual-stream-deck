@@ -169,7 +169,8 @@
     "expressionLabel": "Expresión del estado",
     "expressionHint": "Ejemplos: audio.mic.muted · obs.scene · sys.cpu > 80",
     "addState": "nuevo estado",
-    "appearanceFor": "Aspecto en el estado «{{state}}» (lo que dejes vacío se hereda)"
+    "appearanceFor": "Aspecto en el estado «{{state}}» (lo que dejes vacío se hereda)",
+    "toggleVariable": "Variable del interruptor:"
   },
   "layout": {
     "rowSpan": "Alto (filas)",
@@ -231,7 +232,8 @@
     "conflictOverwrite": "Sobrescribir con la mía",
     "gridShrinkConfirm": "Se eliminarán {{count}} teclas que quedan fuera de la nueva rejilla. ¿Continuar?",
     "rows": "Filas",
-    "cols": "Columnas"
+    "cols": "Columnas",
+    "deletedProfiles": "Perfiles eliminados"
   },
   "theme": {
     "title": "Tema",
@@ -304,22 +306,6 @@
     "help": "Valores en vivo que puedes usar en textos ({{nombre}}), condiciones y estados.",
     "value": "Valor",
     "copy": "Copiar como plantilla"
-  },
-  "help": {
-    "title": "Ayuda",
-    "templatesTitle": "Textos dinámicos",
-    "templates": "Cualquier texto, icono, color o imagen puede incluir expresiones entre {{ }}; se recalculan en cuanto cambian las variables.",
-    "expressionsTitle": "Expresiones",
-    "expressions": "Las condiciones, estados y asignaciones usan expresiones: textos entre comillas, números, true/false, variables (los nombres con caracteres raros van entre corchetes: [mqtt.casa/temp]), operadores == != < <= > >= + - * / %, && || ! (o and/or/not), a ? b : c, ?? y funciones.",
-    "functions": "Funciones",
-    "variablesTitle": "Variables disponibles",
-    "mqttVar": "último mensaje de cada topic suscrito",
-    "webhookVar": "último dato recibido por el webhook",
-    "userVar": "tus variables; se guardan entre reinicios",
-    "toggleVar": "estado de cada interruptor",
-    "valueVar": "valor del deslizador (en sus acciones)",
-    "gesturesTitle": "Gestos",
-    "gestures": "Cada tecla puede tener acciones distintas al pulsar, mantener, doble toque, presionar y soltar. Los deslizadores envían su valor en la variable value."
   },
   "quickEdit": {
     "editTile": "Editar tecla",
@@ -492,5 +478,41 @@
     "enable": "Activar",
     "disable": "Desactivar",
     "sensorsHelp": "Leer la temperatura de la CPU requiere un driver del sistema (PawnIO) que solo un proceso con permisos de administrador puede usar. Por eso OVSD instala un pequeño servicio aparte que únicamente lee los sensores y se los pasa a OVSD, que sigue funcionando con tu usuario normal. Variables: sys.cpu.temp, sys.cpu.power, sys.cpu.clock."
+  },
+  "wiki": {
+    "search": "Buscar en la ayuda…",
+    "noResults": "No hay resultados.",
+    "sections": {
+      "start": "Empezar",
+      "build": "Crear tus paneles",
+      "integrations": "Integraciones",
+      "more": "Más",
+      "reference": "Referencia"
+    },
+    "pages": {
+      "reference-actions": "Todas las acciones",
+      "reference-functions": "Funciones",
+      "reference-keys": "Nombres de teclas"
+    },
+    "actionsIntro": "Lista completa de acciones que puedes añadir a una tecla, con sus opciones. Se genera a partir de tu versión de OVSD.",
+    "functionsIntro": "Funciones que puedes usar en expresiones y en textos dinámicos {{…}}. Los parámetros con ? son opcionales.",
+    "keysIntro": "Nombres de teclas para los atajos: se combinan con + (Ctrl+Shift+M) y varias combinaciones separadas por espacios se pulsan una detrás de otra. Lo más cómodo es usar el botón «Grabar» del editor y pulsar la combinación.",
+    "expression": "expresión",
+    "examples": "Ejemplos",
+    "paramList": "Se elige de una lista (dispositivos, escenas, aplicaciones… de tu PC).",
+    "paramExample": "Ejemplo:",
+    "paramTypes": {
+      "text": "Texto (admite variables).",
+      "multilineText": "Texto de varias líneas (admite variables).",
+      "number": "Número (admite variables, p. ej. {{value}}).",
+      "bool": "Sí / no.",
+      "select": "Una de las opciones.",
+      "hotkey": "Combinación de teclas (botón «Grabar»).",
+      "page": "Una página del perfil.",
+      "profile": "Uno de tus perfiles.",
+      "expression": "Expresión.",
+      "variable": "Nombre de variable, p. ej. user.resultado.",
+      "json": "JSON."
+    }
   }
 }
